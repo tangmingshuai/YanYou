@@ -43,10 +43,8 @@ class TestUserProvider extends EloquentUserProvider
                 $user->save();
                 return $user;
             }
-
         }
         return $query->first();
-
     }
 
     public function validateCredentials(UserContract $user, array $credentials)

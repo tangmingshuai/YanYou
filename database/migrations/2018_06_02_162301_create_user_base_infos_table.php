@@ -17,6 +17,7 @@ class CreateUserBaseInfosTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->index();
             $table->string('name');
+            $table->string('phone');
             $table->enum('sex', ['male', 'female']);
             $table->string('hometown');
             $table->enum('area', ['north', 'south']);

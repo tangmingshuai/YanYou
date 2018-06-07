@@ -31,7 +31,7 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array
      */
-     protected $fillable = [
+    protected $fillable = [
            'account','weixin_openid', 'weixin_unionid',
            'weixin_session_key', 'weapp_openid','notification_count','last_actived_at'
        ];
@@ -82,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
     public function setAvatarAttribute($path)
     {
         // 如果不是 `http` 子串开头，那就是从后台上传的，需要补全 URL
-        if ( ! starts_with($path, 'http')) {
+        if (! starts_with($path, 'http')) {
 
             // 拼接完整的 URL
             $path = config('app.url') . "/uploads/images/avatars/$path";

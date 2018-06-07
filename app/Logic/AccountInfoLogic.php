@@ -11,7 +11,6 @@ namespace App\Logic;
 use App\Facades\Common;
 use Symfony\Component\DomCrawler\Crawler;
 
-
 class AccountInfoLogic
 {
     /**
@@ -58,8 +57,13 @@ class AccountInfoLogic
             $userInfoArray[$key] = $value;
         }
 
-        $res = Common::post($userInfoArray, 'http://id.scuec.edu.cn/authserver/login?goto=http%3A%2F%2Fssfw.scuec.edu.cn%2Fssfw%2Fj_spring_ids_security_check',
-            'form_params', 'http://ehall.scuec.edu.cn/new/index.html',$cookie_jar);
+        $res = Common::post(
+            $userInfoArray,
+            'http://id.scuec.edu.cn/authserver/login?goto=http%3A%2F%2Fssfw.scuec.edu.cn%2Fssfw%2Fj_spring_ids_security_check',
+            'form_params',
+            'http://ehall.scuec.edu.cn/new/index.html',
+            $cookie_jar
+        );
 
         $data = $res['res']->getBody()->getContents();
         $user_name = Common::domCrawler($data, 'filterXPath', '//*[@class="auth_username"]/span/span'); //尝试从登录后页面获取姓名，判断是否登录成功
@@ -112,17 +116,21 @@ class AccountInfoLogic
         $res = $this->judgeAccount($userInfoArray);
         $cookie = unserialize($res['data']['cookie']);
 
-        $res = Common::get('http://id.scuec.edu.cn/authserver/login?goto=http%3A%2F%2Fssfw.scuec.edu.cn%2Fssfw%2Fj_spring_ids_security_check',
-            $cookie, 'http://ssfw.scuec.edu.cn/ssfw/index.do');
+        $res = Common::get(
+            'http://id.scuec.edu.cn/authserver/login?goto=http%3A%2F%2Fssfw.scuec.edu.cn%2Fssfw%2Fj_spring_ids_security_check',
+            $cookie,
+            'http://ssfw.scuec.edu.cn/ssfw/index.do'
+        );
 
         $jar1 = $res['cookie'];
 
-        $res = Common::get('http://ssfw.scuec.edu.cn/ssfw/pkgl/kcbxx/4/2017-2018-2.do?flag=4&xnxqdm=2017-2018-2',
-            $jar1, 'http://ssfw.scuec.edu.cn/ssfw/index.do');
+        $res = Common::get(
+            'http://ssfw.scuec.edu.cn/ssfw/pkgl/kcbxx/4/2017-2018-2.do?flag=4&xnxqdm=2017-2018-2',
+            $jar1,
+            'http://ssfw.scuec.edu.cn/ssfw/index.do'
+        );
 
 
         return $res['res']->getbody();
-
     }
-
 }

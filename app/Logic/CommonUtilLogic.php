@@ -14,15 +14,22 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use Symfony\Component\DomCrawler\Crawler;
 
-
 class CommonUtilLogic
 {
     const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.94 Safari/537.36';
 
-    public function post($body, $apiStr, $postType, $referer = '', $cookie_jar = null)
+    /**
+     * Notes:
+     * @param $body
+     * @param $apiStr
+     * @param $postType
+     * @param string $referer
+     * @param null $cookie_jar
+     * @return array|string
+     */
+    public function post($body, $apiStr, $postType, $referer = null, $cookie_jar = null)
     {
-        $client = new Client(['cookies' => true]);
-
+        $client = new Client();
 
         if (empty($cookie_jar)) {
             $cookie_jar = new CookieJar();
@@ -41,7 +48,7 @@ class CommonUtilLogic
         try {
 //            $request = new Request('POST',$apiStr,$request_array);
 //            $response = $client->send($request, ['timeout' => 2]);
-            $res = $client->request('POST', $apiStr, $request_array);
+                $res = $client->request('POST', $apiStr, $request_array);
         } catch (GuzzleException $e) {
             return $e->getMessage();
         }
@@ -52,8 +59,7 @@ class CommonUtilLogic
         );
     }
 
-    public
-    function get($apiStr, $cookie_jar = null, $referer = null)
+    public function get($apiStr, $cookie_jar = null, $referer = null)
     {
         $client = new Client();
         if (empty($cookie_jar)) {
@@ -70,8 +76,7 @@ class CommonUtilLogic
 
         try {
             $res = $client->request('GET', $apiStr, $request_array);
-        } catch
-        (GuzzleException $e) {
+        } catch (GuzzleException $e) {
             return $e->getMessage();
         }
 
@@ -79,7 +84,6 @@ class CommonUtilLogic
             'cookie' => $cookie_jar,
             'res' => $res
         );
-
     }
 
     /**
@@ -90,10 +94,8 @@ class CommonUtilLogic
      * @param $filterRule :解析规则
      * @return bool|string
      */
-    public
-    function domCrawler($dom, $filterType, $filterRule)
+    public function domCrawler($dom, $filterType, $filterRule)
     {
-
         $crawler = new Crawler();
         $crawler->addHtmlContent($dom);
         switch ($filterType) {
