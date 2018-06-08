@@ -7,9 +7,13 @@ class UsersTableSeeder extends Seeder
 {
     public function run()
     {
-//        // 获取 Faker 实例
-//        $faker = app(Faker\Generator::class);
-//
+        // 获取 Faker 实例
+        $faker = app(Faker\Generator::class);
+        $users=factory(User::class)->times(10)->make()->
+        each(function ($users) use ($faker){
+        });
+        User::insert($users->toArray());
+
 //        // 头像假数据
 //        $avatars = [
 //            'https://fsdhubcdn.phphub.org/uploads/images/201710/14/1/s5ehp11z6s.png?imageView2/1/w/200/h/200',

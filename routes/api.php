@@ -107,6 +107,10 @@ $api->version('v1', [
             // 获取研友目标信息
             $api->get('targetinfo', 'TargetInfosController@show')
                 ->name('api.targetinfo.show');
+            // 获取研友目标信息
+            $api->get('user/match', 'UsersController@match')
+                ->name('api.user.match');
+
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
                 ->name('api.user.update');

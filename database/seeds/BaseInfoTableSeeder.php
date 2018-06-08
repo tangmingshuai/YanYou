@@ -12,11 +12,10 @@ class BaseInfoTableSeeder extends Seeder
      */
     public function run()
     {
-        $user_ids = ['1'];
+
         $faker=app(Faker\Generator::class);
-        $base_info=factory(\App\Models\UserBaseInfo::class)->times(1)->make()->
-        each(function ($base_info) use ($faker, $user_ids) {
-            $base_info->user_id = $faker->randomElement($user_ids);
+        $base_info=factory(\App\Models\UserBaseInfo::class)->times(10)->make()->
+        each(function ($base_info) use ($faker) {
         });
 
         \App\Models\UserBaseInfo::insert($base_info->toArray());

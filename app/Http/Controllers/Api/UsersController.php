@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use App\Models\Image;
+use App\Models\UserBaseInfo;
 use Illuminate\Http\Request;
 use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
 
 class UsersController extends Controller
 {
-  public function weappStore(UserRequest $request)
+    public function weappStore(UserRequest $request)
     {
         // 缓存中是否存在对应的 key
         $verifyData = \Cache::get($request->verification_key);
@@ -60,7 +61,7 @@ class UsersController extends Controller
             ])
             ->setStatusCode(201);
     }
-    
+
     public function store(UserRequest $request)
     {
         $verifyData = \Cache::get($request->verification_key);
@@ -115,5 +116,14 @@ class UsersController extends Controller
     public function activedIndex(User $user)
     {
         return $this->response->collection($user->getActiveUsers(), new UserTransformer());
+    }
+
+    public function match(Request $request)
+    {
+        $user1=$this->user();
+        $user1_target_info=$user1->targetinfo()->get();
+        $pre_users=UserBaseInfo::where('user_id', '!=', $user1->id)
+            ->get();
+        return $this->response->item($pre_users,new UserBaseInfo());
     }
 }
