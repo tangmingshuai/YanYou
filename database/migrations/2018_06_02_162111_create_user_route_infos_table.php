@@ -15,7 +15,7 @@ class CreateUserRouteInfosTable extends Migration
     {
         Schema::create('user_route_infos', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->index();
+            $table->integer('user_id')->unique()->index();
             $table->enum('router_id', ['0', '1', '2'])->index()->comment('0:主页,1:匹配页,2:打卡页');
             $table->enum('match_state', ['0', '1', '2'])->index()->comment('0:主页,1:匹配页,2:打卡页');
             $table->timestamps();

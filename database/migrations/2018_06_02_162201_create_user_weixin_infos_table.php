@@ -15,7 +15,7 @@ class CreateUserWeixinInfosTable extends Migration
     {
         Schema::create('user_weixin_infos', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->index();
+            $table->integer('user_id')->unique()->index();
             $table->string('nickname')->nullable();
             $table->string('avatar')->nullable();
             $table->string('introduction')->nullable();

@@ -15,8 +15,8 @@ class CreateUserMatchInfosTable extends Migration
     {
         Schema::create('user_match_infos', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user1_id')->index();
-            $table->integer('user2_id')->index();
+            $table->integer('user1_id')->unique()->index();
+            $table->integer('user2_id')->unique()->index();
             $table->timestamps();
         });
     }

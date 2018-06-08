@@ -14,6 +14,12 @@ class UsersController extends Controller
         return view('users.show', compact('user'));
     }
 
+    public function showBaseInfo(User $user)
+    {
+        $base_info=$user->baseInfo();
+        return $base_info;
+    }
+
     public function edit(User $user)
     {
         $this->authorize('update', $user);

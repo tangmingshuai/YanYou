@@ -15,7 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('account')->nullable();
+            $table->string('account')->unique()->nullable();
             $table->string('password')->nullable();
             $table->string('weixin_openid')->unique()->nullable();
             $table->string('weixin_unionid')->unique()->nullable();

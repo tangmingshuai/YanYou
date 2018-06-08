@@ -50,6 +50,16 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Topic::class);
     }
 
+    public function baseInfo()
+    {
+        return $this->hasOne(UserBaseInfo::class, 'user_id');
+    }
+
+    public function targetInfo()
+    {
+        return $this->hasOne(UserTargetInfo::class, 'user_id');
+    }
+
     public function isAuthorOf($model)
     {
         return $this->id == $model->user_id;

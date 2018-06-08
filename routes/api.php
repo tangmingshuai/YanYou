@@ -20,7 +20,7 @@ $api->version('v1', [
     'middleware' => ['serializer:array', 'bindings', 'change-locale']
 ], function ($api) {
     //调试
-    $api->post('test','TestController@store');
+    $api->post('test', 'TestController@store');
     // 登录
     $api->post('authorizations', 'AuthorizationsController@store')
         ->name('api.authorizations.store');
@@ -95,6 +95,18 @@ $api->version('v1', [
             // 当前登录用户信息
             $api->get('user', 'UsersController@me')
                 ->name('api.user.show');
+            // 填写个人信息
+            $api->post('baseinfo', 'BaseInfosController@store')
+                ->name('api.baseinfo.store');
+            // 获取个人信息
+            $api->get('baseinfo', 'BaseInfosController@show')
+                ->name('api.baseinfo.show');
+            // 填写研友目标信息
+            $api->post('targetinfo', 'TargetInfosController@store')
+                ->name('api.targetinfo.store');
+            // 获取研友目标信息
+            $api->get('targetinfo', 'TargetInfosController@show')
+                ->name('api.targetinfo.show');
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
                 ->name('api.user.update');
@@ -136,8 +148,8 @@ $api->version('v1', [
     });
 });
 
-$api->version('v2', function($api) {
-    $api->get('version', function() {
+$api->version('v2', function ($api) {
+    $api->get('version', function () {
         return response('this is version v2');
     });
 });

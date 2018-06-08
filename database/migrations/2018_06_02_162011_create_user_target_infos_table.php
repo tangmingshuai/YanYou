@@ -15,15 +15,15 @@ class CreateUserTargetInfosTable extends Migration
     {
         Schema::create('user_target_infos', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->index();
-            $table->enum('sex', ['male', 'female']);
+            $table->integer('user_id')->unique()->index();
+            $table->enum('sex', ['男', '女']);
             $table->string('hometown');
-            $table->enum('area', ['north', 'south']);
+            $table->enum('area', ['北区', '南区']);
             $table->string('school_place');
             $table->string('school_name');
             $table->string('school_field');
-            $table->enum('school_type', ['xueshuo', 'zhuanshuo']);
-            $table->enum('study_style', ['single', 'gruop']);
+            $table->enum('school_type', ['学硕', '专硕']);
+            $table->enum('study_style', ['单独', '团体']);
             $table->string('good_subject');
             $table->timestamps();
         });
