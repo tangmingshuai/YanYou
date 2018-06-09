@@ -11,9 +11,10 @@ class TargetInfosController extends Controller
 {
     public function store(TargetInfoRequest $baseInfoRequest, UserTargetInfo $userTargetInfo)
     {
-        if ($this->user()->targetinfo()->get()) {
+        if (!empty($this->user()->targetinfo()->get()[0])) {
             return $this->response->errorForbidden("用户已设置目标信息");
         }
+
 
         $user = $this->user();
         $userTargetInfo->user_id= $user->id;

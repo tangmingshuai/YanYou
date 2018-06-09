@@ -12,7 +12,7 @@ class BaseInfosController extends Controller
     //
     public function store(BaseInfoRequest $baseInfoRequest, UserBaseInfo $userBaseInfo)
     {
-        if ($this->user()->baseinfo()->get()) {
+        if (!empty($this->user()->baseinfo()->get()[0])) {
             return $this->response->errorForbidden("用户已设置个人信息");
         }
 

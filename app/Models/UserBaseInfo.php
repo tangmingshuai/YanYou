@@ -10,4 +10,9 @@ class UserBaseInfo extends Model
         'user_id','name','phone', 'sex',
         'hometown', 'area','school_place','school_name','school_field','school_type','study_style','good_subject'
     ];
+
+    public function getFillable()
+    {
+        return $this->fillable;
+    }
 }

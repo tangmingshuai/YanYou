@@ -96,16 +96,16 @@ $api->version('v1', [
             $api->get('user', 'UsersController@me')
                 ->name('api.user.show');
             // 填写个人信息
-            $api->post('baseinfo', 'BaseInfosController@store')
+            $api->post('user/baseinfo', 'BaseInfosController@store')
                 ->name('api.baseinfo.store');
             // 获取个人信息
-            $api->get('baseinfo', 'BaseInfosController@show')
+            $api->get('user/baseinfo', 'BaseInfosController@show')
                 ->name('api.baseinfo.show');
             // 填写研友目标信息
-            $api->post('targetinfo', 'TargetInfosController@store')
+            $api->post('user/targetinfo', 'TargetInfosController@store')
                 ->name('api.targetinfo.store');
             // 获取研友目标信息
-            $api->get('targetinfo', 'TargetInfosController@show')
+            $api->get('user/targetinfo', 'TargetInfosController@show')
                 ->name('api.targetinfo.show');
             // 获取研友目标信息
             $api->get('user/match', 'UsersController@match')

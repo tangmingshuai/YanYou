@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\BaseInfo;
+use App\Models\UserBaseInfo;
 use Illuminate\Database\Seeder;
 
 class BaseInfoTableSeeder extends Seeder
@@ -14,10 +14,10 @@ class BaseInfoTableSeeder extends Seeder
     {
 
         $faker=app(Faker\Generator::class);
-        $base_info=factory(\App\Models\UserBaseInfo::class)->times(10)->make()->
+        $base_info=factory(UserBaseInfo::class)->times(10)->make()->
         each(function ($base_info) use ($faker) {
         });
 
-        \App\Models\UserBaseInfo::insert($base_info->toArray());
+        UserBaseInfo::insert($base_info->toArray());
     }
 }
