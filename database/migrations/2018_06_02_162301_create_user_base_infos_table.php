@@ -24,7 +24,7 @@ class CreateUserBaseInfosTable extends Migration
             $table->string('school_place');
             $table->string('school_name');
             $table->string('school_field');
-            $table->enum('school_type', ['学硕', '专硕']);
+            $table->enum('school_type', ['学硕', '专硕','不确定']);
             $table->enum('study_style', ['单独', '团体']);
             $table->string('good_subject');
             $table->index(['user_id', 'sex', 'area', 'school_place'],'index_users_base_info');

@@ -7,10 +7,10 @@ use App\Models\Image;
 use App\Models\UserBaseInfo;
 use App\Models\UserTargetInfo;
 use App\Transformers\UserBaseInfoTransformer;
-use function Couchbase\defaultDecoder;
 use Illuminate\Http\Request;
 use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
+use Illuminate\Support\Collection;
 
 class UsersController extends Controller
 {
@@ -123,6 +123,21 @@ class UsersController extends Controller
 
     public function match(Request $request)
     {
+        //各属性值的权值
+        $weight = array(
+            'sex' => 8,
+            'hometown' =>2,
+            'area' =>3,
+            'school_place' =>4,
+            'school_name' => 5,
+            'school_field' => 9,
+            'school_type' => 6,
+            'study_style' => 10,
+            'good_subject' => 7
+          );
+
+//        $sum_upper=40;  //匹配度之和的下限，用于过滤互相匹配度均较低的情况
+//        $diff_lower=15;  //匹配度之差的上限，用于过滤单方匹配度较高的情况
         $user1 = $this->user();
         $user1_target_info = $this->user()->targetinfo()->get()[0];//获取UserTargetInfo模型
         $user1_base_info = $this->user()->baseinfo()->get()[0];//获取UserBaseInfo模型
@@ -145,18 +160,60 @@ class UsersController extends Controller
         $match_other_res = array(); //记录user1基本信息与其他用户目标信息的匹配结果的数组
 
         for ($i = 0; $i < count($base_info); $i++) {
-            $match_user1_res[$i] = 0;
-            $match_other_res[$i] = 0;
+            $user2_id = $base_info[$i]['user_id'];
+            $match_user1_res[$user2_id] = 0;
             foreach ($target_info_1 as $key => $value) {
-                if ($value == $base_info[$i][$key]) {
-                    $match_user1_res[$i]++;
+                if ($value == $base_info[$i][$key] || $value == '不介意') {
+                    $match_user1_res[$user2_id] += $weight[$key]; //记录“user_id“与其base_info跟user1_target_info的”匹配程度”所组成的键值对数组
                 }
             }
         }
 
+        for ($i = 0; $i < count($target_info); $i++) {
+            $user2_id = $target_info[$i]['user_id'];
+            $match_other_res[$user2_id] = 0;
+            foreach ($target_info[$i] as $key => $value) {
+                if ($value == $base_info_1[$key] || $value == '不介意') {
+                    $match_other_res[$user2_id] += $weight[$key]; //记录“user_id“与其$target_info跟user1_base_info的”匹配程度”所组成的键值对数组
+                }
+            }
+        }
 
-        dd($match_user1_res);
-        $match_user = User::find(3)->baseInfo()->get();
+        //计算A和B之间的匹配度的调和平均值，即相似度
+        foreach ($match_user1_res as $key => $value) {
+            $match_res_tiaohe[$key] = round(2 * $value * $match_other_res[$key]/($value+$match_other_res[$key]), 2);   //计算匹配度之和，用于表示两者互相的匹配程度
+        }
+
+//        foreach ($match_user1_res as $key => $value) {
+//            $match_res_sum[$key] = $value + $match_other_res[$key];   //计算匹配度之和，用于表示两者互相的匹配程度
+//            $match_res_diff[$key] = abs($value - $match_other_res[$key]);  //计算匹配度只差，用于表示两者匹配度是否互相接近
+//        }
+//
+//
+//        //过滤互相匹配度均较低的情况
+//        $array1 = array_where($match_res_sum, function ($value, $key) use ($sum_upper) {
+//            return $value>=$sum_upper;
+//        });
+//
+//        //匹配度之差的上限，用于过滤单方匹配度较高的情况
+//        $array2 = array_where($match_res_diff, function ($value, $key) use ($diff_lower) {
+//            return $value<=$diff_lower;
+//        });
+
+//
+//        foreach ($array1 as $key => $value) {
+//            if (isset($array2[$key])) {
+//                $match_res[$key] = $match_user1_res[$key];
+//            }
+//        }
+
+        //按照相似度降序排序，取出前五名
+        arsort($match_res_tiaohe);
+        $match_res = array_slice($match_res_tiaohe, 0, 5, true);
+        $match_user=new Collection();
+        foreach ($match_res as $key => $value) {
+            $match_user -> push(User::find($key)->baseInfo()->get()->first());
+        }
         return $this->response->item($match_user, new UserBaseInfoTransformer());
     }
 

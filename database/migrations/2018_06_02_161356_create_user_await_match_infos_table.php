@@ -13,16 +13,16 @@ class CreateUserAwaitMatchInfosTable extends Migration
      */
     public function up()
     {
-            Schema::create('user_await_match_infos', function (Blueprint $table) {
-                //
-                $table->increments('id');
-                $table->integer('user1_id')->index();
-                $table->integer('user2_id')->index();
-                $table->string('share_url')->nullable();
-                $table->timestamp('expired_at')->nullable();
-                $table->timestamps();
-            });
-        }
+        Schema::create('user_await_match_infos', function (Blueprint $table) {
+            //
+            $table->increments('id');
+            $table->integer('user1_id')->index();
+            $table->integer('user2_id')->index();
+            $table->string('share_url')->nullable();
+            $table->timestamp('expired_at')->nullable();
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.
