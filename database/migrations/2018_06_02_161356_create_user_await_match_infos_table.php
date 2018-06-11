@@ -19,6 +19,7 @@ class CreateUserAwaitMatchInfosTable extends Migration
             $table->integer('user1_id')->index();
             $table->integer('user2_id')->index();
             $table->string('share_url')->nullable();
+            $table->boolean('state')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->timestamps();
         });

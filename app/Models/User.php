@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Requests\Api\AwaitMatchUserRequest;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -58,6 +59,11 @@ class User extends Authenticatable implements JWTSubject
     public function targetInfo()
     {
         return $this->hasOne(UserTargetInfo::class, 'user_id');
+    }
+
+    public function awaitMatchUser()
+    {
+        return $this->hasMany(UserAwaitMatchInfo::class, 'user1_id');
     }
 
     public function isAuthorOf($model)

@@ -107,9 +107,18 @@ $api->version('v1', [
             // 获取研友目标信息
             $api->get('user/targetinfo', 'TargetInfosController@show')
                 ->name('api.targetinfo.show');
-            // 获取研友目标信息
-            $api->get('user/match', 'UsersController@match')
-                ->name('api.user.match');
+            // 获取匹配的研友信息
+            $api->get('user/match', 'UsersController@matchUsersShow')
+                ->name('api.user.get.match.users');
+            // 接受匹配邀请，完成匹配
+            $api->post('user/match', 'UsersController@matchUsersStore')
+                ->name('api.user..match.user');
+            // 发送研友匹配邀请
+            $api->post('user/awaitmatch', 'UsersController@awaitMatchUsersStore')
+                ->name('api.user.await.match.user');
+            // 获取研友匹配邀请信息
+            $api->get('user/awaitmatch', 'UsersController@awaitMatchUsersShow')
+                ->name('api.user.await.match.user');
 
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')

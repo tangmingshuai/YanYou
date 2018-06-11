@@ -7,7 +7,6 @@
  */
 
 namespace App\Transformers;
-
 use App\Models\UserTargetInfo;
 use League\Fractal\TransformerAbstract;
 

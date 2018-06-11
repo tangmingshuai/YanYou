@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserTargetInfo extends Model
+class UserAwaitMatchInfo extends Model
 {
     protected $fillable = [
-        'user_id','sex',
-        'hometown', 'area','school_place','school_name','school_field','school_type','study_style','good_subject'
+        'user1_id','user2_id','share_url', 'state','expired_at'
     ];
 
     protected $hidden = [

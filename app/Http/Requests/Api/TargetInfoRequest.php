@@ -35,12 +35,13 @@ class TargetInfoRequest extends FormRequest
                     'school_name' => 'required|string',
                     'school_field' => 'required|string',
                     'school_type' => 'required|string|in:学硕,专硕',
-                    'study_style' =>'required|string|in:单独,团体',
+                    'study_style' => 'required|string|in:单独,团体',
                     'good_subject' => 'required|string',
                 ];
                 break;
         }
     }
+
     /**
      * 获取已定义的验证规则的错误消息。
      *
@@ -52,6 +53,7 @@ class TargetInfoRequest extends FormRequest
 
         ];
     }
+
     protected function failedValidation(Validator $validator)
     {
 //        throw new ResourceException('表单验证不通过', $validator->errors(),null,[],200);

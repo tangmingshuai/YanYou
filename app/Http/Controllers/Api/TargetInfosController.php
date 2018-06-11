@@ -9,24 +9,24 @@ use App\Http\Controllers\Controller;
 
 class TargetInfosController extends Controller
 {
-    public function store(TargetInfoRequest $baseInfoRequest, UserTargetInfo $userTargetInfo)
+    public function store(TargetInfoRequest $targetInfoRequest, UserTargetInfo $userTargetInfo)
     {
-        if (!empty($this->user()->targetinfo()->get()[0])) {
-            return $this->response->errorForbidden("用户已设置目标信息");
+        $user = $this->user();
+
+        if (!empty($user->targetinfo()->get()->first())) {
+            $this->response->errorForbidden("用户已设置目标信息");
         }
 
-
-        $user = $this->user();
         $userTargetInfo->user_id= $user->id;
-        $userTargetInfo->sex=$baseInfoRequest['sex'];
-        $userTargetInfo->hometown=$baseInfoRequest['hometown'];
-        $userTargetInfo->area=$baseInfoRequest['area'];
-        $userTargetInfo->school_place=$baseInfoRequest['school_place'];
-        $userTargetInfo->school_name=$baseInfoRequest['school_name'];
-        $userTargetInfo->school_field=$baseInfoRequest['school_field'];
-        $userTargetInfo->school_type=$baseInfoRequest['school_type'];
-        $userTargetInfo->study_style=$baseInfoRequest['study_style'];
-        $userTargetInfo->good_subject=$baseInfoRequest['good_subject'];
+        $userTargetInfo->sex=$targetInfoRequest['sex'];
+        $userTargetInfo->hometown=$targetInfoRequest['hometown'];
+        $userTargetInfo->area=$targetInfoRequest['area'];
+        $userTargetInfo->school_place=$targetInfoRequest['school_place'];
+        $userTargetInfo->school_name=$targetInfoRequest['school_name'];
+        $userTargetInfo->school_field=$targetInfoRequest['school_field'];
+        $userTargetInfo->school_type=$targetInfoRequest['school_type'];
+        $userTargetInfo->study_style=$targetInfoRequest['study_style'];
+        $userTargetInfo->good_subject=$targetInfoRequest['good_subject'];
         $userTargetInfo->save();
         return $this->response->item($userTargetInfo, new UserTargetInfoTransformer());
     }
