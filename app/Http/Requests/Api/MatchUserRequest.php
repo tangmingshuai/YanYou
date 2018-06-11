@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Dingo\Api\Exception\ResourceException;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AwaitMatchUserRequest extends FormRequest
+class MatchUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,12 +29,10 @@ class AwaitMatchUserRequest extends FormRequest
             case 'POST':
                 return [
                     'user2_id' => 'required|string',
-                    'share_url' => 'string',
                 ];
                 break;
             case 'DELETE':
                 return [
-                    'user2_id' => 'required|string',
                 ];
                 break;
         }

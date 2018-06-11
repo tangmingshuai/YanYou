@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\AwaitMatchUserRequest;
+use App\Http\Requests\Api\MatchUserRequest;
 use App\Models\User;
 use App\Models\Image;
 use App\Models\UserAwaitMatchInfo;
 use App\Models\UserBaseInfo;
+use App\Models\UserMatchInfo;
 use App\Models\UserTargetInfo;
 use App\Transformers\UserAwaitMatchInfoTransformer;
 use App\Transformers\UserBaseInfoTransformer;
+use App\Transformers\UserMatchInfoTransformer;
 use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
 use Illuminate\Support\Collection;
@@ -150,26 +153,26 @@ class UsersController extends Controller
 
 
         /**这两个查询语句相当于
-         SELECT * FROM user_base_infos
-         WHERE user_id != $user1->id and
-         WHERE Not EXISTS (SELECT * from user_await_match_infos
-         where user1_id = 32 and state = false and user2_id = user_base_infos.user_id)
+         * SELECT * FROM user_base_infos
+         * WHERE user_id != $user1->id and
+         * WHERE Not EXISTS (SELECT * from user_await_match_infos
+         * where user1_id = 32 and state = false and user2_id = user_base_infos.user_id)
          * 目的是从表中筛选出不符合匹配条件(即黑名单),方法是从待匹配表中找出当前用户的所有匹配记录中状态为false的user2_id，并从查询结果中去除这些id
          * 此处不直接一并取出user1而用下面这种方法，是为了省去大量判断，便于定位user1的位置单独处理
          **/
         $users_base_infos = UserBaseInfo::where('user_id', '!=', $user1->id)
-        ->whereNotExists(function ($query) use ($user1) {
-            $query->select(DB::raw(1))
-            ->from('user_await_match_infos')
-            ->where('user1_id', $user1->id)->whereraw('state = false and user2_id = user_base_infos.user_id');
-        })->get();
+            ->whereNotExists(function ($query) use ($user1) {
+                $query->select(DB::raw(1))
+                    ->from('user_await_match_infos')
+                    ->where('user1_id', $user1->id)->whereraw('state = false and user2_id = user_base_infos.user_id');
+            })->get();
 
         $users_target_infos = UserTargetInfo::where('user_id', '!=', $user1->id)
-        ->whereNotExists(function ($query) use ($user1) {
-            $query->select(DB::raw(1))
-                ->from('user_await_match_infos')
-                ->where('user1_id', $user1->id)->whereraw('state = false and user2_id = user_target_infos.user_id');
-        })->get();
+            ->whereNotExists(function ($query) use ($user1) {
+                $query->select(DB::raw(1))
+                    ->from('user_await_match_infos')
+                    ->where('user1_id', $user1->id)->whereraw('state = false and user2_id = user_target_infos.user_id');
+            })->get();
 
         $users_base_infos[] = $user1_base_info; //将user1的模型对象添加到其他模型对象数组末尾，方便一起进行处理
         $users_target_infos[] = $user1_target_info; //将user1的模型对象添加到其他模型对象数组末尾，方便一起进行处理
@@ -244,6 +247,115 @@ class UsersController extends Controller
     }
 
     /**
+     * Notes:接受邀请，进行匹配，存入数据库
+     * 难点在于安全检测，理清两个表中的user1和user2的对应关系
+     * 正确情况下，在Await表中，传入的user2_id参数应为user1_id字段，即邀请人
+     * 当前用户应为Await表中user2_id字段，即被邀请人
+     * 而在Match表中，当前用户为user1，即被邀请人
+     * 传入的参数为user2，即邀请人
+     * @param MatchUserRequest $matchUserRequest
+     * @param UserMatchInfo $userMatchInfo
+     * @return \Dingo\Api\Http\Response
+     */
+    public function matchUsersStore(MatchUserRequest $matchUserRequest, UserMatchInfo $userMatchInfo)
+    {
+        $user1_id = $this->user()->id; //当前接受邀请的用户id
+        $user2_id = (int)$matchUserRequest['user2_id']; //申请人的id
+        switch ($matchUserRequest->method()) {
+            //此处暂留一个接口安全隐患，如果用户直接请求接口，仍能对黑名单中用户发送邀请，暂通过其他接口保护措施规避，若有问题需要补全
+            case 'POST':
+                //防止恶意请求，因为无法确定当前用户和发送邀请的用户，在匹配关系表中是邀请方还是接受方，故做此写法，一般情况下不会出现这个问题
+                if (!empty(UserMatchInfo::where('user1_id', $user1_id)
+                    ->orwhere('user2_id', $user1_id)
+                    ->orwhere('user1_id', $user2_id)
+                    ->orwhere('user2_id', $user2_id)
+                    ->get()
+                    ->first())) {
+                    $array = [
+                        'message' => '该用户或邀请方已有匹配对象',
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                }
+
+                //防止恶意请求，只允许合法用户进行匹配
+                if (!User::find($user2_id)) {
+                    $array = [
+                        'message' => '邀请方不存在',
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                }
+
+                //防止恶意请求，检测邀请人是否合法
+                if (empty(UserAwaitMatchInfo::where('user1_id', $user2_id)
+                    ->where('state', null)->get()->first()->user1_id)) {
+                    $array = [
+                        'message' => '对方还没有发起邀请噢',
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                }
+
+                //防止恶意请求，检测当前用户是否在对方邀请列表里
+                if (UserAwaitMatchInfo::where('user1_id', $user2_id)
+                        ->where('state', null)->get()->first()->user2_id != $user1_id) {
+                    $array = [
+                        'message' => '你没有被对方邀请噢',
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                }
+
+                $userMatchInfo->user1_id = $user1_id;
+                $userMatchInfo->user2_id = (int)$matchUserRequest['user2_id'];
+                if ($userMatchInfo->save()) {
+                    UserAwaitMatchInfo::where('user2_id', $user1_id)
+                        ->where('user1_id', '!=', $user2_id)
+                        ->where('state', null)
+                        ->update(['state' => false]);
+                    UserAwaitMatchInfo::where('user2_id', $user1_id)
+                        ->where('user1_id', $user2_id)
+                        ->where('state', null)
+                        ->update(['state' => true]);
+                }
+                return $this->response->item($userMatchInfo, new UserMatchInfoTransformer());
+                break;
+            case 'DELETE':
+                $user_id = UserMatchInfo::where('user1_id', $this->user()->id)
+                    ->orwhere('user2_id', $this->user()->id)
+                    ->get()->first();
+
+                //防止恶意请求，检测是否存在研友
+                if (empty($user_id)) {
+                        $array = [
+                            'message' => '你还没有匹配研友',
+                            'status_code' => 403
+                        ];
+                        return $this->response->array($array);
+                }
+                //因为不确定当前用户在匹配关系表中的字段，所以user1和user2字段的值都要重新获取
+                $user1_id=$user_id->user1_id;
+                $user2_id=$user_id->user2_id;
+
+                //同样，因为不确定当前用户在待匹配关系表中的字段顺序，所以进行两次查询更改操作
+                UserAwaitMatchInfo::where('user1_id', $user1_id)
+                    ->where('user2_id', $user2_id)
+                    ->update(['state'=>false]);
+                UserAwaitMatchInfo::where('user1_id', $user2_id)
+                    ->where('user2_id', $user1_id)
+                    ->update(['state'=>false]);
+
+                //删除匹配关系表中的这两名关联用户
+                UserMatchInfo::where('user1_id', $this->user()->id)
+                    ->orwhere('user2_id', $this->user()->id)
+                    ->delete();
+                return $this->response->array(['status_code'=>200]);
+                break;
+        }
+    }
+
+    /**
      * Notes: 发送匹配邀请,若已存在邀请对象，则返回403和邀请对象,否则返回200
      * @param AwaitMatchUserRequest $awaitMatchUserRequest
      * @param UserAwaitMatchInfo $userAwaitMatchInfo
@@ -253,22 +365,42 @@ class UsersController extends Controller
     {
         $user1_id = $this->user()->id;
 
-        if (!empty($user2_id = userAwaitMatchInfo::where('user1_id', $user1_id)
-            ->where('state', null)
-            ->get()
-            ->first())) {
-            $array = [
-                'message' => '用户已有待匹配对象',
-                'user2_id' => $user2_id->user2_id,
-                'status_code' => 403
-            ];
-            return $this->response->array($array);
-        }
+        switch ($awaitMatchUserRequest->method()) {
+            //此处暂留一个接口安全隐患，如果用户直接请求接口，仍能对黑名单中用户发送邀请，暂通过其他接口保护措施规避，若有问题需要补全
+            case 'POST':
+                if (!empty($user2_id = UserAwaitMatchInfo::where('user1_id', $user1_id)
+                    ->where('state', null)
+                    ->get()
+                    ->first())) {
+                    $array = [
+                        'message' => '用户已有待匹配对象',
+                        'user2_id' => $user2_id->user2_id,
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                }
 
-        $userAwaitMatchInfo->user1_id = $user1_id;
-        $userAwaitMatchInfo->user2_id = $awaitMatchUserRequest['user2_id'];
-        $userAwaitMatchInfo->save();
-        return $this->response->item($userAwaitMatchInfo, new UserAwaitMatchInfoTransformer());
+                $userAwaitMatchInfo->user1_id = $user1_id;
+                $userAwaitMatchInfo->user2_id = (int)$awaitMatchUserRequest['user2_id'];
+                $userAwaitMatchInfo->expired_at = date('Y-m-d H:i:s', time() + 43200); //邀请链接12个小时后过期，视为被邀请方拒绝接受邀请
+                $userAwaitMatchInfo->save();
+                return $this->response->item($userAwaitMatchInfo, new UserAwaitMatchInfoTransformer());
+                break;
+            case 'DELETE':
+                $user2_id = UserAwaitMatchInfo::where('user1_id', (int)$awaitMatchUserRequest['user2_id'])//此时参数中的user2为发送邀请的用户，即待匹配表中的user1
+                ->where('user2_id', $user1_id)//拒绝邀请时，此时的用户为被邀请对象，即待匹配表中的user2,通过user1和state能唯一确定被拒绝对象，但以防万一，对user2也做验证
+                ->where('state', null);
+                if (empty($user2_id->get()->first())) {
+                    $array = [
+                        'message' => '此邀请人不存在',
+                        'status_code' => 403
+                    ];
+                    return $this->response->array($array);
+                } else {
+                    $user2_id->update(['state' => false]);
+                    return $this->response->array(['status_code' => 200]);
+                }
+        }
     }
 
     /**
@@ -278,13 +410,13 @@ class UsersController extends Controller
      */
     public function awaitMatchUsersShow()
     {
-        $userAwaitMatchInfos = userAwaitMatchInfo::select('user1_id')
+        $userAwaitMatchInfos = UserAwaitMatchInfo::select('user1_id')
             ->where('user2_id', $this->user()->id)
             ->where('state', null)
             ->get();
         $user1_base_infos = new Collection();
         foreach ($userAwaitMatchInfos as $userAwaitMatchInfo) {
-            $user1_base_infos ->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
+            $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
         }
         return $this->response->item($user1_base_infos, new UserBaseInfoTransformer());
     }

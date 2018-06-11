@@ -16,8 +16,8 @@ class CreateUserAwaitMatchInfosTable extends Migration
         Schema::create('user_await_match_infos', function (Blueprint $table) {
             //
             $table->increments('id');
-            $table->integer('user1_id')->index();
-            $table->integer('user2_id')->index();
+            $table->integer('user1_id')->index()->comment('发送邀请用户的id');
+            $table->integer('user2_id')->index()->comment('被邀请用户的id');
             $table->string('share_url')->nullable();
             $table->boolean('state')->nullable();
             $table->timestamp('expired_at')->nullable();

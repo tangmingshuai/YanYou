@@ -66,6 +66,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserAwaitMatchInfo::class, 'user1_id');
     }
 
+    public function matchUser()
+    {
+        return $this->hasOne(UserMatchInfo::class, 'user1_id');
+    }
+
     public function isAuthorOf($model)
     {
         return $this->id == $model->user_id;

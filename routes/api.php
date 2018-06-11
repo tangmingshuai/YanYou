@@ -112,13 +112,20 @@ $api->version('v1', [
                 ->name('api.user.get.match.users');
             // 接受匹配邀请，完成匹配
             $api->post('user/match', 'UsersController@matchUsersStore')
-                ->name('api.user..match.user');
+                ->name('api.user.match.user.store');
+            // 解除研友关系
+            $api->delete('user/match', 'UsersController@matchUsersStore')
+                ->name('api.user.match.user.delete');
+
+            // 拒绝匹配邀请
+            $api->delete('user/awaitmatch', 'UsersController@awaitMatchUsersStore')
+                ->name('api.user.await.match.user.delete');
             // 发送研友匹配邀请
             $api->post('user/awaitmatch', 'UsersController@awaitMatchUsersStore')
-                ->name('api.user.await.match.user');
+                ->name('api.user.await.match.user.store');
             // 获取研友匹配邀请信息
             $api->get('user/awaitmatch', 'UsersController@awaitMatchUsersShow')
-                ->name('api.user.await.match.user');
+                ->name('api.user.await.match.user,show');
 
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
