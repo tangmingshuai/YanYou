@@ -7,12 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserSignDetailInfo;
 use App\Models\UserSignInfo;
+use App\Transformers\UserSignDetailInfoTransformer;
 use App\Transformers\UserSignInfoTransformer;
 use Carbon\Carbon;
 
 class SignDetailInfosController extends Controller
 {
-    public function store(SignDetailInfoRequest $signDetailInfoRequest, UserSignDetailInfo $signDetailInfo)
+    public function store(UserSignDetailInfo $signDetailInfo)
     {
         $now_time = Carbon::now();
         $today_time = Carbon::today();
@@ -68,16 +69,41 @@ class SignDetailInfosController extends Controller
                             $user2_signinfo->update(['sign_score'=>$new_user2_signscore]);
                             break;
                     }
+
+                    $now_rank = UserSignDetailInfo::select('sign_rank')
+                        ->where('day_timestamp', Carbon::today())
+                        ->max('sign_rank')
+                        ->get()
+                        ->first()->sign_rank;
+                    dd($now_rank);
                     $signDetailInfo->user_id=$this->user()->id;
                     $signDetailInfo->day_timestamp=$today_time;
                     $signDetailInfo->sign_timestamp=$now_time;
                     $signDetailInfo->save();
                     return $this->response->item($user_signinfo, new UserSignInfoTransformer);
-                } else {
+                } else { //单人打卡逻辑处理
                     if (empty($user_signinfo = $this->user()->signInfo()->get()->first())) {
                         $user_signinfo = new UserSignInfo();
                         $user_signinfo->user_id = $this->user()->id;
                         $user_signinfo->save();
+                    }
+                    $now_rank = UserSignDetailInfo::select('sign_rank')
+                        ->where('day_timestamp', Carbon::today())
+                        ->max('sign_rank');
+
+                    //判断是否为当天第一个打卡
+                    if (empty($now_rank)) {
+                        $signDetailInfo->user_id=$this->user()->id;
+                        $signDetailInfo->day_timestamp=$today_time;
+                        $signDetailInfo->sign_timestamp=$now_time;
+                        $signDetailInfo->sign_rank= 1 ;
+                        $signDetailInfo->save();
+                    } else {
+                        $signDetailInfo->user_id=$this->user()->id;
+                        $signDetailInfo->day_timestamp=$today_time;
+                        $signDetailInfo->sign_timestamp=$now_time;
+                        $signDetailInfo->sign_rank= $now_rank + 1 ;
+                        $signDetailInfo->save();
                     }
                     $new_user_signscore=$user_signinfo->sign_score+1;
                     $user_signday=$user_signinfo->sign_day;
@@ -87,5 +113,26 @@ class SignDetailInfosController extends Controller
                 }
             }
         }
+    }
+
+    public function show()
+    {
+        $sign_detail_infos = UserSignDetailInfo::select('user_id', 'sign_rank', 'sign_timestamp')
+            ->where('day_timestamp', Carbon::today())
+            ->where('user_id', $this->user()->id)
+            ->orderBy('sign_rank', 'asc')
+            ->get()->toArray();
+
+        return $this->response->array($sign_detail_infos);
+    }
+
+    public function showall()
+    {
+        $sign_detail_infos = UserSignDetailInfo::select('user_id', 'sign_rank', 'sign_timestamp')
+            ->where('day_timestamp', Carbon::today())
+            ->orderBy('sign_rank', 'asc')
+            ->get()->toArray();
+
+        return $this->response->array($sign_detail_infos);
     }
 }

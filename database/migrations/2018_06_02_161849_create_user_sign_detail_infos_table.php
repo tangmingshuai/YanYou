@@ -17,6 +17,7 @@ class CreateUserSignDetailInfosTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->index();
             $table->timestamp('day_timestamp')->index();
+            $table->integer('sign_rank')->index();
             $table->timestamp('sign_timestamp')->useCurrent();
             $table->timestamps();
         });

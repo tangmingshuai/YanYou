@@ -21,10 +21,10 @@ class SignDetailInfoRequest extends FormRequest
     public function rules()
     {
         switch ($this->method()) {
-            case 'POST':
+            case 'PATCH':
                 return [
                 ];
-            case 'PATCH':
+            case 'GET':
                 return [
                 ];
         }

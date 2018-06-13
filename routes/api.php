@@ -89,6 +89,9 @@ $api->version('v1', [
         // 活跃用户
         $api->get('actived/users', 'UsersController@activedIndex')
             ->name('api.actived.users.index');
+        // 获取当日所有用户打卡排行
+        $api->get('user/sign/ranks', 'SignDetailInfosController@showall')
+            ->name('api.user.sign.rank.showall');
 
         // 需要 token 验证的接口
         $api->group(['middleware' => 'api.auth'], function ($api) {
@@ -133,6 +136,9 @@ $api->version('v1', [
             // 创建和更新用户打卡信息
             $api->patch('user/sign', 'SignDetailInfosController@store')
                 ->name('api.user.sign.store');
+            // 获取用户打卡排行
+            $api->get('user/sign/rank', 'SignDetailInfosController@show')
+                ->name('api.user.sign.rank.show');
 
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
