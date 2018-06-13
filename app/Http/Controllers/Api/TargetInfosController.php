@@ -28,7 +28,7 @@ class TargetInfosController extends Controller
         $userTargetInfo->study_style=$targetInfoRequest['study_style'];
         $userTargetInfo->good_subject=$targetInfoRequest['good_subject'];
         $userTargetInfo->save();
-        return $this->response->item($userTargetInfo, new UserTargetInfoTransformer());
+        return $this->response->item($userTargetInfo, new UserTargetInfoTransformer())->setStatusCode(201);
     }
     public function show()
     {

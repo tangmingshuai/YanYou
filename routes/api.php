@@ -127,6 +127,16 @@ $api->version('v1', [
             $api->get('user/awaitmatch', 'UsersController@awaitMatchUsersShow')
                 ->name('api.user.await.match.user,show');
 
+            // 获取用户打卡信息
+            $api->get('user/sign', 'SignInfosController@show')
+                ->name('api.user.sign.show');
+            // 创建用户打卡信息
+            $api->post('user/sign', 'SignInfosController@store')
+                ->name('api.user.sign.store');
+            // 更新用户打卡信息
+            $api->patch('user/sign', 'SignInfosController@updae')
+                ->name('api.user.sign.update');
+
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')
                 ->name('api.user.update');

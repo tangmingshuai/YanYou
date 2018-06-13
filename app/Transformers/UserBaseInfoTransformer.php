@@ -15,8 +15,7 @@ class UserBaseInfoTransformer extends TransformerAbstract
     public function transform(UserBaseInfo $userBaseInfo)
     {
         return [
-            'data'=> $userBaseInfo->toArray(),
-            'status'=>'200'
+            $userBaseInfo->toArray(),
         ];
     }
 }

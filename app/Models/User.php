@@ -17,6 +17,7 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable {
         notify as protected laravelNotify;
     }
+
     public function notify($instance)
     {
         // 如果要通知的人是当前用户，就不必通知了！
@@ -33,9 +34,9 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-           'account','weixin_openid', 'weixin_unionid',
-           'weixin_session_key', 'weapp_openid','notification_count','last_actived_at'
-       ];
+        'account', 'weixin_openid', 'weixin_unionid',
+        'weixin_session_key', 'weapp_openid', 'notification_count', 'last_actived_at'
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -51,6 +52,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Topic::class);
     }
 
+    //用户信息相关
     public function baseInfo()
     {
         return $this->hasOne(UserBaseInfo::class, 'user_id');
@@ -61,6 +63,7 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserTargetInfo::class, 'user_id');
     }
 
+    //用户匹配相关
     public function awaitMatchUser()
     {
         return $this->hasMany(UserAwaitMatchInfo::class, 'user1_id');
@@ -70,6 +73,18 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(UserMatchInfo::class, 'user1_id');
     }
+
+    //用户打卡相关
+    public function signInfo()
+    {
+        return $this->hasOne(UserSignInfo::class, 'user_id');
+    }
+
+    public function signDetailInfo()
+    {
+        return $this->hasMany(UserSignDetailInfo::class, 'user_id');
+    }
+
 
     public function isAuthorOf($model)
     {
@@ -103,7 +118,7 @@ class User extends Authenticatable implements JWTSubject
     public function setAvatarAttribute($path)
     {
         // 如果不是 `http` 子串开头，那就是从后台上传的，需要补全 URL
-        if (! starts_with($path, 'http')) {
+        if (!starts_with($path, 'http')) {
 
             // 拼接完整的 URL
             $path = config('app.url') . "/uploads/images/avatars/$path";

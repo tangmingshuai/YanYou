@@ -17,8 +17,7 @@ class UserAwaitMatchInfoTransformer extends TransformerAbstract
     public function transform(UserAwaitMatchInfo $userAwaitMatchInfo)
     {
         return [
-            'data'=> $userAwaitMatchInfo->toArray(),
-            'status'=>'200'
+            $userAwaitMatchInfo->toArray(),
         ];
     }
 }

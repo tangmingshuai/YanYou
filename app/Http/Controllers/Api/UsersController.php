@@ -15,8 +15,12 @@ use App\Transformers\UserBaseInfoTransformer;
 use App\Transformers\UserMatchInfoTransformer;
 use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Debug\Exception\FatalErrorException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Whoops\Exception\ErrorException;
 
 class UsersController extends Controller
 {
@@ -151,6 +155,10 @@ class UsersController extends Controller
         $user1_target_info = $this->user()->targetinfo()->get()->first();//获取UserTargetInfo模型
         $user1_base_info = $this->user()->baseinfo()->get()->first();//获取UserBaseInfo模型
 
+        //用户发起匹配时，默认自动拒绝所有申请信息，避免<B邀请了A，A不回复邀请，进行匹配，并发送邀请给C，此时若A接受了B的邀请，则C接受邀请时会失败>
+        UserAwaitMatchInfo::where('user2_id', $user1->id)
+            ->where('state', null)
+            ->update(['state'=>false]);
 
         /**这两个查询语句相当于
          * SELECT * FROM user_base_infos
@@ -177,13 +185,20 @@ class UsersController extends Controller
         $users_base_infos[] = $user1_base_info; //将user1的模型对象添加到其他模型对象数组末尾，方便一起进行处理
         $users_target_infos[] = $user1_target_info; //将user1的模型对象添加到其他模型对象数组末尾，方便一起进行处理
 
-        $info_array = $this->processInfo($users_base_infos);
-        $base_info_1 = $info_array['info_1']; //当前用户基本信息，一维数组
-        $base_info = $info_array['info'];     //其他用户基本信息，二维数组
+        try {
+            $base_info_array = $this->processInfo($users_base_infos);
+            $target_info_array = $this->processInfo($users_target_infos);
+        } catch (\ErrorException $errorException) {
+            return $this->response->array(['message'=>$errorException->getMessage()])->setStatusCode(400);
+        }
 
-        $info_array = $this->processInfo($users_target_infos);
-        $target_info_1 = $info_array['info_1'];//当前用户目标信息，一维数组
-        $target_info = $info_array['info'];//其他用户目标信息，二维数组
+
+
+        $base_info_1 = $base_info_array['info_1']; //当前用户基本信息，一维数组
+        $base_info = $base_info_array['info'];     //其他用户基本信息，二维数组
+
+        $target_info_1 = $target_info_array['info_1'];//当前用户目标信息，一维数组
+        $target_info = $target_info_array['info'];//其他用户目标信息，二维数组
 
         $match_user1_res = array(); //记录其他用户基本信息与user1目标信息的匹配结果的数组
         $match_other_res = array(); //记录user1基本信息与其他用户目标信息的匹配结果的数组
@@ -209,8 +224,13 @@ class UsersController extends Controller
         }
 
         //计算A和B之间的匹配度的调和平均值，即相似度
-        foreach ($match_user1_res as $key => $value) {
-            $match_res_tiaohe[$key] = round(2 * $value * $match_other_res[$key] / ($value + $match_other_res[$key]), 2);
+        try {
+            foreach ($match_user1_res as $key => $value) {
+                $match_res_tiaohe[$key] = round(2 * $value * $match_other_res[$key] / ($value + $match_other_res[$key]), 2);
+            }
+        } catch (\ErrorException $errorException) {
+            return $this->response->array(['message'=>'存在用户未正确设置基本信息和目标信息','user_id'=>$errorException->getMessage()])
+                ->setStatusCode(400);
         }
 
 //        foreach ($match_user1_res as $key => $value) {
@@ -243,7 +263,7 @@ class UsersController extends Controller
         foreach ($match_res as $key => $value) {
             $match_user->push(User::find($key)->baseInfo()->get()->first());
         }
-        return $this->response->item($match_user, new UserBaseInfoTransformer());
+        return $this->response->item($match_user, new UserBaseInfoTransformer())->setStatusCode(200);
     }
 
     /**
@@ -273,18 +293,16 @@ class UsersController extends Controller
                     ->first())) {
                     $array = [
                         'message' => '该用户或邀请方已有匹配对象',
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
 
                 //防止恶意请求，只允许合法用户进行匹配
                 if (!User::find($user2_id)) {
                     $array = [
                         'message' => '邀请方不存在',
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
 
                 //防止恶意请求，检测邀请人是否合法
@@ -292,9 +310,8 @@ class UsersController extends Controller
                     ->where('state', null)->get()->first()->user1_id)) {
                     $array = [
                         'message' => '对方还没有发起邀请噢',
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
 
                 //防止恶意请求，检测当前用户是否在对方邀请列表里
@@ -302,9 +319,8 @@ class UsersController extends Controller
                         ->where('state', null)->get()->first()->user2_id != $user1_id) {
                     $array = [
                         'message' => '你没有被对方邀请噢',
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
 
                 $userMatchInfo->user1_id = $user1_id;
@@ -319,7 +335,7 @@ class UsersController extends Controller
                         ->where('state', null)
                         ->update(['state' => true]);
                 }
-                return $this->response->item($userMatchInfo, new UserMatchInfoTransformer());
+                return $this->response->item($userMatchInfo, new UserMatchInfoTransformer())->setStatusCode(201);
                 break;
             case 'DELETE':
                 $user_id = UserMatchInfo::where('user1_id', $this->user()->id)
@@ -328,11 +344,10 @@ class UsersController extends Controller
 
                 //防止恶意请求，检测是否存在研友
                 if (empty($user_id)) {
-                        $array = [
+                    $array = [
                             'message' => '你还没有匹配研友',
-                            'status_code' => 403
                         ];
-                        return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
                 //因为不确定当前用户在匹配关系表中的字段，所以user1和user2字段的值都要重新获取
                 $user1_id=$user_id->user1_id;
@@ -350,7 +365,7 @@ class UsersController extends Controller
                 UserMatchInfo::where('user1_id', $this->user()->id)
                     ->orwhere('user2_id', $this->user()->id)
                     ->delete();
-                return $this->response->array(['status_code'=>200]);
+                return $this->response->array()->setStatusCode(204); //204时只返回状态码，不返回内容
                 break;
         }
     }
@@ -364,7 +379,7 @@ class UsersController extends Controller
     public function awaitMatchUsersStore(AwaitMatchUserRequest $awaitMatchUserRequest, UserAwaitMatchInfo $userAwaitMatchInfo)
     {
         $user1_id = $this->user()->id;
-
+        $user2_id = (int)$awaitMatchUserRequest['user2_id'];
         switch ($awaitMatchUserRequest->method()) {
             //此处暂留一个接口安全隐患，如果用户直接请求接口，仍能对黑名单中用户发送邀请，暂通过其他接口保护措施规避，若有问题需要补全
             case 'POST':
@@ -373,32 +388,31 @@ class UsersController extends Controller
                     ->get()
                     ->first())) {
                     $array = [
-                        'message' => '用户已有待匹配对象',
+                        'message' => '此用户已有邀请对象',
                         'user2_id' => $user2_id->user2_id,
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 }
 
                 $userAwaitMatchInfo->user1_id = $user1_id;
-                $userAwaitMatchInfo->user2_id = (int)$awaitMatchUserRequest['user2_id'];
+                $userAwaitMatchInfo->user2_id = $user2_id;
                 $userAwaitMatchInfo->expired_at = date('Y-m-d H:i:s', time() + 43200); //邀请链接12个小时后过期，视为被邀请方拒绝接受邀请
                 $userAwaitMatchInfo->save();
-                return $this->response->item($userAwaitMatchInfo, new UserAwaitMatchInfoTransformer());
+                return $this->response->item($userAwaitMatchInfo, new UserAwaitMatchInfoTransformer())->setStatusCode(201);
                 break;
             case 'DELETE':
-                $user2_id = UserAwaitMatchInfo::where('user1_id', (int)$awaitMatchUserRequest['user2_id'])//此时参数中的user2为发送邀请的用户，即待匹配表中的user1
+                $user2_id = UserAwaitMatchInfo::where('user1_id', $user2_id)//此时参数中的user2为发送邀请的用户，即待匹配表中的user1
                 ->where('user2_id', $user1_id)//拒绝邀请时，此时的用户为被邀请对象，即待匹配表中的user2,通过user1和state能唯一确定被拒绝对象，但以防万一，对user2也做验证
                 ->where('state', null);
                 if (empty($user2_id->get()->first())) {
                     $array = [
                         'message' => '此邀请人不存在',
-                        'status_code' => 403
                     ];
-                    return $this->response->array($array);
+                    return $this->response->array($array)->setStatusCode(403);
                 } else {
                     $user2_id->update(['state' => false]);
-                    return $this->response->array(['status_code' => 200]);
+
+                    return $this->response->array(['test'=>'test'])->setStatusCode(204);
                 }
         }
     }
@@ -418,6 +432,10 @@ class UsersController extends Controller
         foreach ($userAwaitMatchInfos as $userAwaitMatchInfo) {
             $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
         }
+
+        if (empty($user1_base_infos->first())) {
+            return $this->response->array(['message'=>'当前用户没有邀请请求'])->setStatusCode(204); //204只返回状态码
+        }
         return $this->response->item($user1_base_infos, new UserBaseInfoTransformer());
     }
 
@@ -428,12 +446,16 @@ class UsersController extends Controller
      * @param $user_infos :UserBaseInfo或UserTargetInfo模型对象
      * 处理对象数组，返回属性->值键值对数组，包括当前用户和其他用户两个数组
      * @return array
+     * @throws \ErrorException
      */
     public function processInfo($user_infos)
     {
         $k = 0; //控制数组长度，即计算有多少组数据
         foreach ($user_infos as $user) {     //依次获取UserBaseInfo模型
-            $attribute_array = $user->getFillable();//获取UserTargetInfo模型所有属性数组
+            if (empty($user)) {
+                throw new  \ErrorException('用户未正确设置基本信息和目标信息');
+            }
+            $attribute_array = $user->getFillable();//获取UserBaseInfo模型所有属性数组
             for ($i = 0; $i < count($attribute_array); $i++) { //不需要获取user_id，name,phone,因此从第二个属性开始获取
                 $attribute = $attribute_array[$i];
                 if ($k == count($user_infos) - 1) { //单独处理user1的基本信息，不可与其他数据一并处理，否则会出现user1匹配到user1的严重逻辑错误

@@ -15,8 +15,7 @@ class UserTargetInfoTransformer extends TransformerAbstract
     public function transform(UserTargetInfo $userTargetInfo)
     {
         return [
-            'data'=> $userTargetInfo->toArray(),
-            'status'=>'200'
+            $userTargetInfo->toArray(),
         ];
     }
 }

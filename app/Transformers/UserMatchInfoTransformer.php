@@ -16,8 +16,7 @@ class UserMatchInfoTransformer extends TransformerAbstract
     public function transform(UserMatchInfo $userMatchInfo)
     {
         return [
-            'data' => $userMatchInfo->toArray(),
-            'status' => '200'
+            $userMatchInfo->toArray(),
         ];
     }
 }

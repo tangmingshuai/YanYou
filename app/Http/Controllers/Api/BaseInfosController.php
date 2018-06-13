@@ -31,7 +31,7 @@ class BaseInfosController extends Controller
         $userBaseInfo->study_style=$baseInfoRequest['study_style'];
         $userBaseInfo->good_subject=$baseInfoRequest['good_subject'];
         $userBaseInfo->save();
-        return $this->response->item($userBaseInfo, new UserBaseInfoTransformer);
+        return $this->response->item($userBaseInfo, new UserBaseInfoTransformer)->setStatusCode(201);
     }
     public function show()
     {
