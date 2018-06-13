@@ -16,8 +16,8 @@ class CreateUserSignInfosTable extends Migration
         Schema::create('user_sign_infos', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unique()->index();
-            $table->integer('sign_day')->unsigned();
-            $table->integer('sign_score')->unsigned()->index();
+            $table->integer('sign_day')->unsigned()->default(0)->index();
+            $table->float('sign_score')->unsigned()->default(0)->index();
             $table->timestamps();
         });
     }

@@ -71,8 +71,15 @@ class User extends Authenticatable implements JWTSubject
 
     public function matchUser()
     {
-        return $this->hasOne(UserMatchInfo::class, 'user1_id');
+        if ($match_user_id = $this->hasOne(UserMatchInfo::class, 'user1_id')->get()->first()) {
+            return $match_user_id->user2_id;
+        } elseif ($match_user_id = $this->hasOne(UserMatchInfo::class, 'user2_id')->get()->first()) {
+            return $match_user_id->user1;
+        } else {
+            return null;
+        }
     }
+
 
     //用户打卡相关
     public function signInfo()

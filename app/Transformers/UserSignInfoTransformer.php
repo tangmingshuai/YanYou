@@ -16,8 +16,7 @@ class UserSignInfoTransformer extends TransformerAbstract
     public function transform(UserSignInfo $userSignInfo)
     {
         return [
-            'data' => $userSignInfo->toArray(),
-            'status' => '200'
+            $userSignInfo->toArray(),
         ];
     }
 }

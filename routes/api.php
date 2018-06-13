@@ -130,12 +130,9 @@ $api->version('v1', [
             // 获取用户打卡信息
             $api->get('user/sign', 'SignInfosController@show')
                 ->name('api.user.sign.show');
-            // 创建用户打卡信息
-            $api->post('user/sign', 'SignInfosController@store')
+            // 创建和更新用户打卡信息
+            $api->patch('user/sign', 'SignDetailInfosController@store')
                 ->name('api.user.sign.store');
-            // 更新用户打卡信息
-            $api->patch('user/sign', 'SignInfosController@updae')
-                ->name('api.user.sign.update');
 
             // 编辑登录用户信息
             $api->patch('user', 'UsersController@update')

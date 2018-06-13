@@ -9,22 +9,13 @@ use App\Transformers\UserSignInfoTransformer;
 
 class SignInfosController extends Controller
 {
-    public function store(SignInfoRequest $signInfoRequest, UserSignInfo $signInfo)
-    {
-        $user_signinfo = $this->user()->get;
-        $user_signday=$user_signinfo->signday;
-        $new_sign_day = $user_signday + 1;
-        $user_signinfo::update(['sign_day'=>$new_sign_day]);
-    }
 
     public function show()
     {
-        $user_signinfo = $this->user()->signInfo()->get()->first();
-        return $this->response->item($user_signinfo, new UserSignInfoTransformer);
-    }
-
-    public function update()
-    {
-        $user_id = $this->user()->signInfo()->get;
+        if (empty($user_signinfo = $this->user()->signInfo()->get()->first())) {
+            return $this->response->array(['message'=>'用户还没有开始打卡'])->setStatusCode(404);
+        } else {
+            return $this->response->item($user_signinfo, new UserSignInfoTransformer);
+        }
     }
 }
