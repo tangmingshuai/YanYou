@@ -184,6 +184,7 @@ return [
 
         App\Providers\AccountInfoServiceProvider::class,
         App\Providers\CommonUtilServiceProvider::class,
+        Dingo\Api\Provider\LaravelServiceProvider::class
 
 
 

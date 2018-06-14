@@ -48,7 +48,7 @@ class CommonUtilLogic
         try {
 //            $request = new Request('POST',$apiStr,$request_array);
 //            $response = $client->send($request, ['timeout' => 2]);
-                $res = $client->request('POST', $apiStr, $request_array);
+            $res = $client->request('POST', $apiStr, $request_array);
         } catch (GuzzleException $e) {
             return $e->getMessage();
         }

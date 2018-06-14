@@ -26,6 +26,7 @@ class SignDetailInfoRequest extends FormRequest
                 ];
             case 'GET':
                 return [
+                    'day_timestamp' => 'string'
                 ];
         }
     }

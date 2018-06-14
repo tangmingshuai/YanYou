@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\AwaitMatchUserRequest;
 use App\Http\Requests\Api\MatchUserRequest;
 use App\Models\User;
-use App\Models\Image;
 use App\Models\UserAwaitMatchInfo;
 use App\Models\UserBaseInfo;
 use App\Models\UserMatchInfo;
@@ -15,12 +14,8 @@ use App\Transformers\UserBaseInfoTransformer;
 use App\Transformers\UserMatchInfoTransformer;
 use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
-use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\Debug\Exception\FatalErrorException;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
-use Whoops\Exception\ErrorException;
 
 class UsersController extends Controller
 {
@@ -103,11 +98,6 @@ class UsersController extends Controller
                 'expires_in' => \Auth::guard('api')->factory()->getTTL() * 60
             ])
             ->setStatusCode(201);
-    }
-
-    public function me()
-    {
-        return $this->response->item($this->user(), new UserTransformer());
     }
 
     public function update(UserRequest $request)
@@ -439,6 +429,14 @@ class UsersController extends Controller
         return $this->response->item($user1_base_infos, new UserBaseInfoTransformer());
     }
 
+    /**
+     * Notes:辅助函数，获取用户是否绑定学号密码
+     * @return bool
+     */
+    public function isStudent()
+    {
+        return $this->response->array(['student'=>!empty($this->user()->account)]);
+    }
 
     /**
      * Notes:

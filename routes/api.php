@@ -36,19 +36,9 @@ $api->version('v1', [
         'limit' => config('api.rate_limits.sign.limit'),
         'expires' => config('api.rate_limits.sign.expires'),
     ], function ($api) {
-        // 短信验证码
-        $api->post('verificationCodes', 'VerificationCodesController@store')
-            ->name('api.verificationCodes.store');
         // 用户注册
         $api->post('users', 'UsersController@store')
             ->name('api.users.store');
-        // 图片验证码
-        $api->post('captchas', 'CaptchasController@store')
-            ->name('api.captchas.store');
-
-        // 第三方登录
-        $api->post('socials/{social_type}/authorizations', 'AuthorizationsController@socialStore')
-            ->name('api.socials.authorizations.store');
         // 登录
         $api->post('authorizations', 'AuthorizationsController@store')
             ->name('api.authorizations.store');
@@ -66,38 +56,22 @@ $api->version('v1', [
         'expires' => config('api.rate_limits.access.expires'),
     ], function ($api) {
         // 游客可以访问的接口
-        $api->get('categories', 'CategoriesController@index')
-            ->name('api.categories.index');
-        // 话题列表
-        $api->get('topics', 'TopicsController@index')
-            ->name('api.topics.index');
-        // 话题详情
-        $api->get('topics/{topic}', 'TopicsController@show')
-            ->name('api.topics.show');
-        // 某个用户发布的话题
-        $api->get('users/{user}/topics', 'TopicsController@userIndex')
-            ->name('api.users.topics.index');
-        // 话题回复列表
-        $api->get('topics/{topic}/replies', 'RepliesController@index')
-            ->name('api.topics.replies.index');
-        // 某个用户的回复列表
-        $api->get('users/{user}/replies', 'RepliesController@userIndex')
-            ->name('api.users.replies.index');
-        // 资源推荐
-        $api->get('links', 'LinksController@index')
-            ->name('api.links.index');
-        // 活跃用户
-        $api->get('actived/users', 'UsersController@activedIndex')
-            ->name('api.actived.users.index');
+
         // 获取当日所有用户打卡排行
-        $api->get('user/sign/ranks', 'SignDetailInfosController@showall')
+        $api->get('user/sign/ranks', 'SignDetailInfosController@showRankAll')
             ->name('api.user.sign.rank.showall');
+        // 获取所有用户打卡积分排行
+        $api->get('user/sign/score/ranks', 'SignDetailInfosController@showScoreAll')
+            ->name('api.user.sign.score.showall');
+        // 获取所有用户打卡天数排行
+        $api->get('user/sign/day/ranks', 'SignDetailInfosController@showDayAll')
+            ->name('api.user.sign.day.showall');
 
         // 需要 token 验证的接口
         $api->group(['middleware' => 'api.auth'], function ($api) {
-            // 当前登录用户信息
-            $api->get('user', 'UsersController@me')
-                ->name('api.user.show');
+            // 获取当前用户是否为验证学生
+            $api->get('user', 'UsersController@isStudent')
+                ->name('api.user.isStudent');
             // 填写个人信息
             $api->post('user/baseinfo', 'BaseInfosController@store')
                 ->name('api.baseinfo.store');
