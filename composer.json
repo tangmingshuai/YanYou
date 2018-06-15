@@ -22,12 +22,8 @@
         "overtrue/laravel-wechat": "~4.0",
         "overtrue/pinyin": "~3.0",
         "predis/predis": "~1.0",
-        "socialiteproviders/weixin": "^4.0",
-        "spatie/laravel-permission": "~2.7",
-        "summerblue/administrator": "~1.1",
         "symfony/dom-crawler": "^4.1",
-        "tymon/jwt-auth": "1.0.0-rc.1",
-        "viacreative/sudo-su": "~1.1"
+        "tymon/jwt-auth": "1.0.0-rc.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "~3.1",
