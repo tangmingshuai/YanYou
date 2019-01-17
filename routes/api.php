@@ -114,43 +114,6 @@ $api->version('v1', [
             $api->get('user/sign/rank', 'SignDetailInfosController@show')
                 ->name('api.user.sign.rank.show');
 
-            // 编辑登录用户信息
-            $api->patch('user', 'UsersController@update')
-                ->name('api.user.update');
-            $api->put('user', 'UsersController@update')
-                ->name('api.user.update');
-            // 图片资源
-            $api->post('images', 'ImagesController@store')
-                ->name('api.images.store');
-            // 发布话题
-            $api->post('topics', 'TopicsController@store')
-                ->name('api.topics.store');
-            // 修改话题
-            $api->patch('topics/{topic}', 'TopicsController@update')
-                ->name('api.topics.update');
-            // 删除话题
-            $api->delete('topics/{topic}', 'TopicsController@destroy')
-                ->name('api.topics.destroy');
-            $api->get('user/topics', 'TopicsController@myIndex')
-                ->name('api.user.topics.index');
-            // 发布回复
-            $api->post('topics/{topic}/replies', 'RepliesController@store')
-                ->name('api.topics.replies.store');
-            // 删除回复
-            $api->delete('topics/{topic}/replies/{reply}', 'RepliesController@destroy')
-                ->name('api.topics.replies.destroy');
-            // 通知列表
-            $api->get('user/notifications', 'NotificationsController@index')
-                ->name('api.user.notifications.index');
-            // 通知统计
-            $api->get('user/notifications/stats', 'NotificationsController@stats')
-                ->name('api.user.notifications.stats');
-            // 标记消息通知为已读
-            $api->patch('user/read/notifications', 'NotificationsController@read')
-                ->name('api.user.notifications.read');
-            // 当前登录用户权限
-            $api->get('user/permissions', 'PermissionsController@index')
-                ->name('api.user.permissions.index');
         });
     });
 });
