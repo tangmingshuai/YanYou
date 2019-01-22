@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 class BaseInfosController extends Controller
 {
     //
+    use Helpers;
     public function store(BaseInfoRequest $baseInfoRequest, UserBaseInfo $userBaseInfo)
     {
         $user = $this->user();
