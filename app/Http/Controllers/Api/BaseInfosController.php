@@ -6,6 +6,7 @@ use App\Http\Requests\Api\BaseInfoRequest;
 use App\Models\UserBaseInfo;
 use App\Transformers\UserBaseInfoTransformer;
 use App\Http\Controllers\Controller;
+use Dingo\Api\Routing\Helpers;
 
 class BaseInfosController extends Controller
 {
