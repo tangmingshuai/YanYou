@@ -6,9 +6,13 @@ use App\Http\Requests\Api\TargetInfoRequest;
 use App\Models\UserTargetInfo;
 use App\Transformers\UserTargetInfoTransformer;
 use App\Http\Controllers\Controller;
+use Dingo\Api\Routing\Helpers;
+
 
 class TargetInfosController extends Controller
 {
+    use Helpers;
+
     public function store(TargetInfoRequest $targetInfoRequest, UserTargetInfo $userTargetInfo)
     {
         $user = $this->user();
