@@ -28,9 +28,9 @@ class TargetInfoRequest extends FormRequest
         switch ($this->method()) {
             case 'POST':
                 return [
-                    'sex' => 'required|string|in:女,男',
+                    'sex' => 'required|string|in:女,男,不介意',
                     'hometown' => 'required|string',
-                    'area' => 'required|string|in:北区,南区',
+                    'area' => 'required|string|in:北区,南区,不介意',
                     'school_place' => 'required|string',
                     'school_name' => 'required|string',
                     'school_field' => 'required|string',
