@@ -249,11 +249,13 @@ class UsersController extends Controller
         //按照相似度降序排序，取出前五名
         arsort($match_res_tiaohe);
         $match_res = array_slice($match_res_tiaohe, 0, 5, true);
-        $match_user = new Collection();
+//        $match_user = new Collection();
         foreach ($match_res as $key => $value) {
-            $match_user->push(User::find($key)->baseInfo()->get()->first());
+            $matchUser = User::find($key);
+//            $match_user->push(User::find($key)->baseInfo()->get()->first());
+            $matchUserInfos[$key] = array_merge($matchUser->baseinfo()->get()->first()->toArray(), $matchUser->weixininfo()->get()>first()->toArray());
         }
-        return $this->response->item($match_user, new UserBaseInfoTransformer())->setStatusCode(200);
+        return $this->response->array($matchUserInfos, new UserBaseInfoTransformer())->setStatusCode(200);
     }
 
     /**
@@ -418,15 +420,20 @@ class UsersController extends Controller
             ->where('user2_id', $this->user()->id)
             ->where('state', null)
             ->get();
-        $user1_base_infos = new Collection();
+        $user1_base_infos = array();
+//        $user1_base_infos = new Collection();
         foreach ($userAwaitMatchInfos as $userAwaitMatchInfo) {
-            $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
-        }
+            $user1 = User::find($userAwaitMatchInfo->user1_id);
+//            $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
+            $user1_base_infos[$userAwaitMatchInfo->user1_id] = array_merge($user1->baseinfo()->get()->first()->toArray(), $user1->weixininfo()->get()>first()->toArray());
 
-        if (empty($user1_base_infos->first())) {
-            return $this->response->array(['message'=>'当前用户没有邀请请求'])->setStatusCode(204); //204只返回状态码
         }
-        return $this->response->item($user1_base_infos, new UserBaseInfoTransformer());
+//        if (empty($user1_base_infos->first())) {
+        if (empty($user1_base_infos)) {
+//            return $this->response->array(['message'=>'当前用户没有邀请请求'])->setStatusCode(204); //204只返回状态码
+            return $this->response->array(['message'=>'当前用户没有邀请请求']); //204只返回状态码
+        }
+        return $this->response->array($user1_base_infos, new UserBaseInfoTransformer());
     }
 
     /**

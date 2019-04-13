@@ -57,6 +57,12 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserBaseInfo::class, 'user_id');
     }
 
+    //用户信息相关
+    public function weixinInfo()
+    {
+        return $this->hasOne(UserWeixinInfo::class, 'user_id');
+    }
+
     public function targetInfo()
     {
         return $this->hasOne(UserTargetInfo::class, 'user_id');

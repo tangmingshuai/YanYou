@@ -78,6 +78,9 @@ $api->version('v1', [
             // 获取个人信息
             $api->get('user/baseinfo', 'BaseInfosController@show')
                 ->name('api.baseinfo.show');
+            // 获取个人信息
+            $api->get('user/match/baseinfo', 'BaseInfosController@matchShow')
+                ->name('api.match.baseinfo.show');
             // 填写研友目标信息
             $api->post('user/targetinfo', 'TargetInfosController@store')
                 ->name('api.targetinfo.store');
@@ -108,7 +111,7 @@ $api->version('v1', [
             $api->get('user/sign', 'SignInfosController@show')
                 ->name('api.user.sign.show');
             // 创建和更新用户打卡信息
-            $api->patch('user/sign', 'SignDetailInfosController@store')
+            $api->get('user/today/sign', 'SignDetailInfosController@store')
                 ->name('api.user.sign.store');
             // 获取用户打卡排行
             $api->get('user/sign/rank', 'SignDetailInfosController@show')
