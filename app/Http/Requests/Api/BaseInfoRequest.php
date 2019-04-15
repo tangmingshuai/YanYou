@@ -28,17 +28,17 @@ class BaseInfoRequest extends FormRequest
         switch ($this->method()) {
             case 'POST':
                 return [
-                    'name' => 'required|string|max:10',
-                    'phone' => 'required|numeric|unique:user_base_infos,phone',
-                    'sex' => 'required|string|in:女,男',
-                    'hometown' => 'required|string',
-                    'area' => 'required|string|in:北区,南区',
-                    'school_place' => 'required|string',
-                    'school_name' => 'required|string',
-                    'school_field' => 'required|string',
-                    'school_type' => 'required|string|in:学硕,专硕',
-                    'study_style' =>'required|string|in:单独,团体',
-                    'good_subject' => 'required|string',
+                    'name' => 'string|max:10',
+                    'phone' => 'numeric|unique:user_base_infos,phone',
+                    'sex' => 'string|in:女,男',
+                    'hometown' => 'string',
+                    'area' => 'string|in:北区,南区',
+                    'school_place' => 'string',
+                    'school_name' => 'string',
+                    'school_field' => 'string',
+                    'school_type' => 'string|in:学硕,专硕',
+                    'study_style' =>'string|in:单独,团体',
+                    'good_subject' => 'string',
                 ];
                 break;
         }

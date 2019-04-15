@@ -75,6 +75,9 @@ $api->version('v1', [
             // 填写个人信息
             $api->post('user/baseinfo', 'BaseInfosController@store')
                 ->name('api.baseinfo.store');
+            // 填写个人信息
+            $api->post('user/baseinfo/update', 'BaseInfosController@update')
+                ->name('api.baseinfo.store');
             // 获取个人信息
             $api->get('user/baseinfo', 'BaseInfosController@show')
                 ->name('api.baseinfo.show');
