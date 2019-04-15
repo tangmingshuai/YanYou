@@ -38,9 +38,31 @@ class BaseInfosController extends Controller
         $userBaseInfo->save();
         return $this->response->item($userBaseInfo, new UserBaseInfoTransformer)->setStatusCode(201);
     }
+
+    public function update(BaseInfoRequest $baseInfoRequest, UserBaseInfo $userBaseInfo)
+    {
+        $user = $this->user();
+
+        $userBaseInfo->user_id= $user->id;
+        $baseInfoRequest['name'] && $userBaseInfo->name=$baseInfoRequest['name'];
+        $baseInfoRequest['phone'] && $userBaseInfo->phone=$baseInfoRequest['phone'];
+        $baseInfoRequest['sex'] && $userBaseInfo->sex=$baseInfoRequest['sex'];
+        $baseInfoRequest['hometown'] && $userBaseInfo->hometown=$baseInfoRequest['hometown'];
+        $baseInfoRequest['area'] && $userBaseInfo->area=$baseInfoRequest['area'];
+        $baseInfoRequest['school_place'] && $userBaseInfo->school_place=$baseInfoRequest['school_place'];
+        $baseInfoRequest['school_name'] && $userBaseInfo->school_name=$baseInfoRequest['school_name'];
+        $baseInfoRequest['school_field'] && $userBaseInfo->school_field=$baseInfoRequest['school_field'];
+        $baseInfoRequest['school_type'] && $userBaseInfo->school_type=$baseInfoRequest['school_type'];
+        $baseInfoRequest['study_style'] && $userBaseInfo->study_style=$baseInfoRequest['study_style'];
+        $baseInfoRequest['good_subject'] && $userBaseInfo->good_subject=$baseInfoRequest['good_subject'];
+        $userBaseInfo->update();
+        return $this->response->item($userBaseInfo, new UserBaseInfoTransformer)->setStatusCode(201);
+    }
+
     public function show()
     {
-        $userInfo = array_merge($this->user()->baseinfo()->get()->toArray()[0], $this->user()->weixininfo()->get()->toArray()[0]);
+        $userWeiXinInfo = $this->user()->weixininfo()->get()->toArray() ? : [];
+        $userInfo = array_merge($this->user()->baseinfo()->get()->toArray()[0], $userWeiXinInfo);
         $matchUserId = $this->user()->matchUser();
         $userInfo['match_user_id'] = $matchUserId ? : 0;
         $userInfo['is_match_user_sign_today'] = false;
