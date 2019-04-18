@@ -28,7 +28,7 @@ class BaseInfoRequest extends FormRequest
         switch ($this->method()) {
             case 'POST':
                 return [
-                    'name' => 'string|max:10',
+                    'name' => 'string',
                     'phone' => 'numeric|unique:user_base_infos,phone',
                     'sex' => 'string|in:女,男',
                     'hometown' => 'string',
