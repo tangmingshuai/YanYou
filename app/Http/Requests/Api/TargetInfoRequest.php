@@ -34,7 +34,7 @@ class TargetInfoRequest extends FormRequest
                     'school_place' => 'required|string',
                     'school_name' => 'required|string',
                     'school_field' => 'required|string',
-                    'school_type' => 'required|string|in:学硕,专硕',
+                    'school_type' => 'required|string|in:学硕,专硕,不介意',
                     'study_style' => 'required|string|in:单独,团体',
                     'good_subject' => 'required|string',
                 ];

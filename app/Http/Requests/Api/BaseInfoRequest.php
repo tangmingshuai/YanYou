@@ -36,7 +36,7 @@ class BaseInfoRequest extends FormRequest
                     'school_place' => 'string',
                     'school_name' => 'string',
                     'school_field' => 'string',
-                    'school_type' => 'string|in:学硕,专硕',
+                    'school_type' => 'string|in:学硕,专硕,不确定',
                     'study_style' =>'string|in:单独,团体',
                     'good_subject' => 'string',
                 ];
