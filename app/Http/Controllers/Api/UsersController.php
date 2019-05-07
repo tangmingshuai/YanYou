@@ -16,6 +16,7 @@ use App\Transformers\UserTransformer;
 use App\Http\Requests\Api\UserRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
@@ -219,8 +220,9 @@ class UsersController extends Controller
                 $match_res_tiaohe[$key] = round(2 * $value * $match_other_res[$key] / ($value + $match_other_res[$key]), 2);
             }
         } catch (\ErrorException $errorException) {
-            return $this->response->array(['message'=>'存在用户未正确设置基本信息和目标信息','user_id'=>$errorException->getMessage()])
-                ->setStatusCode(400);
+//            unset($match_res_tiaohe[$key]);
+//            return $this->response->array(['message'=>'存在用户未正确设置基本信息和目标信息','user_id'=>$errorException->getMessage()])
+//                ->setStatusCode(400);
         }
 
 //        foreach ($match_user1_res as $key => $value) {
@@ -375,18 +377,18 @@ class UsersController extends Controller
         $user2_id = (int)$awaitMatchUserRequest['user2_id'];
         switch ($awaitMatchUserRequest->method()) {
             //此处暂留一个接口安全隐患，如果用户直接请求接口，仍能对黑名单中用户发送邀请，暂通过其他接口保护措施规避，若有问题需要补全
+            case 'GET':
             case 'POST':
-                if (!empty($user2_id = UserAwaitMatchInfo::where('user1_id', $user1_id)
+                if (!empty($user2_id_exist = UserAwaitMatchInfo::where('user1_id', $user1_id)
                     ->where('state', null)
                     ->get()
                     ->first())) {
                     $array = [
                         'message' => '此用户已有邀请对象',
-                        'user2_id' => $user2_id->user2_id,
+                        'user2_id' => $user2_id_exist->user2_id,
                     ];
                     return $this->response->array($array)->setStatusCode(403);
                 }
-
                 $userAwaitMatchInfo->user1_id = $user1_id;
                 $userAwaitMatchInfo->user2_id = $user2_id;
                 $userAwaitMatchInfo->expired_at = date('Y-m-d H:i:s', time() + 43200); //邀请链接12个小时后过期，视为被邀请方拒绝接受邀请

@@ -106,6 +106,10 @@ $api->version('v1', [
             // 发送研友匹配邀请
             $api->post('user/awaitmatch', 'UsersController@awaitMatchUsersStore')
                 ->name('api.user.await.match.user.store');
+            $api->post('user/awaitmatch2', 'UsersController@awaitMatchUsersStore')
+                ->name('api.user.await.match.user.store');
+            $api->get('user/awaitmatch2', 'UsersController@awaitMatchUsersStore')
+                ->name('api.user.await.match.user.store');
             // 获取研友匹配邀请信息
             $api->get('user/awaitmatch', 'UsersController@awaitMatchUsersShow')
                 ->name('api.user.await.match.user,show');

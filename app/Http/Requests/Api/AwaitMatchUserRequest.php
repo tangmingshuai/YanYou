@@ -32,6 +32,12 @@ class AwaitMatchUserRequest extends FormRequest
                     'share_url' => 'string',
                 ];
                 break;
+            case 'GET':
+                return [
+                    'user2_id' => 'required|string',
+                    'share_url' => 'string',
+                ];
+                break;
             case 'DELETE':
                 return [
                     'user2_id' => 'required|string',
