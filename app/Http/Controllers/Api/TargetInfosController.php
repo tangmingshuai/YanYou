@@ -37,6 +37,9 @@ class TargetInfosController extends Controller
     public function show()
     {
         $userTargetInfo = $this->user()->targetinfo()->get();
+        if (empty($userTargetInfo)){
+            return $this->response->error('用户未设置目标信息', 404);
+        }
         return $this->response->item($userTargetInfo, new UserTargetInfoTransformer());
     }
 }

@@ -62,7 +62,11 @@ class BaseInfosController extends Controller
     public function show()
     {
         $userWeiXinInfo = $this->user()->weixininfo()->get()->toArray() ? : [];
-        $userInfo = array_merge($this->user()->baseinfo()->get()->toArray()[0], $userWeiXinInfo);
+        $userInfo = $this->user()->baseinfo()->get()->toArray();
+        if (empty($userInfo)){
+            return $this->response->error('用户未设置基本信息', 404);
+        }
+        $userInfo = array_merge($userInfo[0], $userWeiXinInfo);
         $matchUserId = $this->user()->matchUser();
         $userInfo['match_user_id'] = $matchUserId ? : 0;
         $userInfo['is_match_user_sign_today'] = false;

@@ -52,11 +52,12 @@ class AuthorizationsController extends Controller
         $token = Auth::guard('api')->fromUser($user);
 
         $json_array=[
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
-            'weapp_openid' => $data['openid'],
-            'weixin_session_key'=> $data['session_key']
+            'user_id'            => $user->id,
+            'access_token'       => $token,
+            'token_type'         => 'Bearer',
+            'expires_in'         => Auth::guard('api')->factory()->getTTL() * 60,
+            'weapp_openid'       => $data['openid'],
+            'weixin_session_key' => $data['session_key']
         ];
         return $this->response->array($json_array)->setStatusCode(201);
     }
