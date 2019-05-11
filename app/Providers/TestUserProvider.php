@@ -24,11 +24,10 @@ class TestUserProvider extends EloquentUserProvider
 
         //查找数据库中是否存在该用户名
         foreach ($credentials as $key => $value) {
-            if (!Str::contains($key, 'password')) {
+            if (!Str::contains($key, 'password') && !Str::contains($key, 'openid')) {
                 $query->orWhere($key, $value);
             }
         }
-
 
         //如果不存在，验证是否为有效学生，若是则添加进数据库
         if (!$query->first()) {
@@ -36,11 +35,16 @@ class TestUserProvider extends EloquentUserProvider
             $usr_info = ['username' => $credentials['account'], 'password' => $credentials['password']];
             $result = app('AccountInfoLogic')->judgeAccount($usr_info);
             if ($result['status'] == 200) {
-                $user = User::create([
-                    'account' => $credentials['account']
-                ]);
+                // 找到 openid 对应的用户
+                $user = User::where('weapp_openid', $credentials['openid'])->first();
+                $user->account = $credentials['account'];
                 $user->password = bcrypt($credentials['password']);
-                $user->save();
+                $user->update();
+//                $user = User::create([
+//                    'account' => $credentials['account']
+//                ]);
+//                $user->password = bcrypt($credentials['password']);
+//                $user->save();
                 return $user;
             }
         }

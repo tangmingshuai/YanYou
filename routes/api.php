@@ -81,7 +81,7 @@ $api->version('v1', [
             // 获取个人信息
             $api->get('user/baseinfo', 'BaseInfosController@show')
                 ->name('api.baseinfo.show');
-            // 获取个人信息
+            // 获取研友个人信息
             $api->get('user/match/baseinfo', 'BaseInfosController@matchShow')
                 ->name('api.match.baseinfo.show');
             // 填写研友目标信息
