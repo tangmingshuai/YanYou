@@ -14,6 +14,7 @@ class AuthorizationRequest extends FormRequest
         return [
             'username' => 'required|string',
             'password' => 'required|string|min:6',
+            'openid'   => 'required|string',
         ];
     }
 }

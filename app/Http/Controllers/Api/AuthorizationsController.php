@@ -73,6 +73,7 @@ class AuthorizationsController extends Controller
         //account和password对应数据库字段
         $credentials['account'] = $username;
         $credentials['password'] = $request->password;
+        $credentials['openid'] = $request->openid;
 
 
         if (!$token = Auth::guard('api')->attempt($credentials)) {
