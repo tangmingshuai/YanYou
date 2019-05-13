@@ -254,9 +254,11 @@ class UsersController extends Controller
 //        $match_user = new Collection();
         foreach ($match_res as $key => $value) {
             $matchUser = User::find($key);
-            $matchUserWeiXinInfo = $matchUser->weixininfo()->get()->toArray() ? : array([]);
+            if ($matchUser){
+                $matchUserWeiXinInfo = $matchUser->weixininfo()->get()->toArray() ? : array([]);
 //            $match_user->push(User::find($key)->baseInfo()->get()->first());
             $matchUserInfos[$key] = array_merge($matchUser->baseinfo()->get()->first()->toArray(), $matchUserWeiXinInfo[0]);
+            }
         }
         return $this->response->array($matchUserInfos, new UserBaseInfoTransformer())->setStatusCode(200);
     }

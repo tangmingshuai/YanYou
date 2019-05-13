@@ -10,6 +10,7 @@ use App\Models\UserSignInfo;
 use App\Transformers\UserBaseInfoTransformer;
 use App\Http\Controllers\Controller;
 use Dingo\Api\Routing\Helpers;
+use Carbon\Carbon;
 
 class BaseInfosController extends Controller
 {
