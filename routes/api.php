@@ -57,13 +57,13 @@ $api->version('v1', [
     ], function ($api) {
         // 游客可以访问的接口
 
-        // 获取当日所有用户打卡排行
+        // 获取当日所有用户打卡排行（早起排行）
         $api->get('user/sign/ranks', 'SignDetailInfosController@showRankAll')
             ->name('api.user.sign.rank.showall');
         // 获取所有用户打卡积分排行
         $api->get('user/sign/score/ranks', 'SignDetailInfosController@showScoreAll')
             ->name('api.user.sign.score.showall');
-        // 获取所有用户打卡天数排行
+        // 获取所有用户打卡天数排行（累积排行）
         $api->get('user/sign/day/ranks', 'SignDetailInfosController@showDayAll')
             ->name('api.user.sign.day.showall');
 

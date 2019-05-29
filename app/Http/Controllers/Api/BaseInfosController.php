@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\Api\BaseInfoRequest;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserBaseInfo;
-use App\Models\UserSignDetailInfo;
 use App\Models\UserSignInfo;
-use App\Transformers\UserBaseInfoTransformer;
-use App\Http\Controllers\Controller;
 use Dingo\Api\Routing\Helpers;
-use Carbon\Carbon;
+use App\Models\UserSignDetailInfo;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\BaseInfoRequest;
+use App\Transformers\UserBaseInfoTransformer;
 
 class BaseInfosController extends Controller
 {
@@ -77,6 +77,14 @@ class BaseInfosController extends Controller
                 ->get()->first();
         }
 
+        $sign_detail_infos = UserSignInfo::orderBy('sign_day', 'desc')
+            ->join('user_weixin_infos', 'user_sign_infos.user_id', '=', 'user_weixin_infos.user_id')
+            ->get()->toArray();
+        $signInfo = array_filter($sign_detail_infos, function($k) {
+            return $k['user_id'] == 54;
+        });
+
+        $userInfo['sign_rank'] = array_keys($signInfo)[0];
         return $this->response->array($userInfo, new UserBaseInfoTransformer());
     }
 
