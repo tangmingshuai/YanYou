@@ -125,18 +125,22 @@ class SignDetailInfosController extends Controller
                     empty($now_rank)?$signDetailInfo->sign_rank= 1:$signDetailInfo->sign_rank= $now_rank + 1 ;
 
                     //判断是否为该专业第一个打卡，计算专业排名
-                    $user_major = $this->user()->baseInfo()->get()->first()->school_field;
-                    $major_users= array_flatten(UserBaseInfo::select('user_id')
-                        ->where('school_field', $user_major)
-                        ->where('user_id', '!=', $this->user()->id)
-                        ->get()->toArray());
+                    $user = $this->user()->baseInfo()->get()->first();
+                    $signDetailInfo->sign_major_rank = 0;
+                    if($user){
+                        $user_major = $user->school_field;
+                        $major_users= array_flatten(UserBaseInfo::select('user_id')
+                            ->where('school_field', $user_major)
+                            ->where('user_id', '!=', $this->user()->id)
+                            ->get()->toArray());
 
-                    $now_major_rank=UserSignDetailInfo::select('sign_major_rank')
-                        ->whereIn('user_id', $major_users)
-                        ->where('day_timestamp', Carbon::today())
-                        ->max('sign_major_rank');
-                    empty($now_major_rank)?$signDetailInfo->sign_major_rank= 1:
-                        $signDetailInfo->sign_major_rank= $now_major_rank + 1 ;
+                        $now_major_rank=UserSignDetailInfo::select('sign_major_rank')
+                            ->whereIn('user_id', $major_users)
+                            ->where('day_timestamp', Carbon::today())
+                            ->max('sign_major_rank');
+                        empty($now_major_rank)?$signDetailInfo->sign_major_rank= 1:
+                            $signDetailInfo->sign_major_rank = $now_major_rank + 1 ;
+                    }
 
                     $signDetailInfo->user_id=$this->user()->id;
                     $signDetailInfo->day_timestamp=$today_time;
@@ -184,15 +188,14 @@ class SignDetailInfosController extends Controller
             return $this->response->array(['message'=>'这一天没有打卡信息'])->setStatusCode(404);
         }
 
-        $user_major = $this->user()->baseInfo()->get()->first()->school_field;
+        $userBaseInfo = $this->user()->baseInfo()->get()->first();
         $json_array = [
             'user_id' => $sign_detail_infos->user_id,
-            'user_major' =>$user_major,
             'sign_rank' => $sign_detail_infos->sign_rank,
             'sign_major_rank' => $sign_detail_infos->sign_major_rank,
             'sign_timestamp' =>$sign_detail_infos->sign_timestamp,
         ];
-
+        $userBaseInfo && $json_array['user_major'] = $userBaseInfo->school_field;
         return $this->response->array($json_array);
     }
 

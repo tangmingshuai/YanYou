@@ -11,6 +11,7 @@ use App\Models\UserSignDetailInfo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BaseInfoRequest;
 use App\Transformers\UserBaseInfoTransformer;
+use Illuminate\Support\Facades\Log;
 
 class BaseInfosController extends Controller
 {
@@ -40,10 +41,12 @@ class BaseInfosController extends Controller
         return $this->response->item($userBaseInfo, new UserBaseInfoTransformer)->setStatusCode(201);
     }
 
-    public function update(BaseInfoRequest $baseInfoRequest, UserBaseInfo $userBaseInfo)
+    public function update(BaseInfoRequest $baseInfoRequest)
     {
+
         $user = $this->user();
 
+        $userBaseInfo = new UserBaseInfo();
         $userBaseInfo->user_id= $user->id;
         $baseInfoRequest['name'] && $userBaseInfo->name=$baseInfoRequest['name'];
         $baseInfoRequest['phone'] && $userBaseInfo->phone=$baseInfoRequest['phone'];
