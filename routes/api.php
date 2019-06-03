@@ -21,6 +21,9 @@ $api->version('v1', [
 ], function ($api) {
     //调试
     $api->post('test', 'TestController@store');
+    // 预热期
+    $api->get('warm', 'AuthorizationsController@warmTime')
+        ->name('api.authorizations.warm');
     // 登录
     $api->post('authorizations', 'AuthorizationsController@store')
         ->name('api.authorizations.store');
@@ -77,7 +80,7 @@ $api->version('v1', [
                 ->name('api.baseinfo.store');
             // 填写个人信息
             $api->post('user/baseinfo/update', 'BaseInfosController@update')
-                ->name('api.baseinfo.store');
+                ->name('api.baseinfo.update');
             // 获取个人信息
             $api->get('user/baseinfo', 'BaseInfosController@show')
                 ->name('api.baseinfo.show');
