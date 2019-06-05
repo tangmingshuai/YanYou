@@ -160,6 +160,7 @@ class UsersController extends Controller
          * 此处不直接一并取出user1而用下面这种方法，是为了省去大量判断，便于定位user1的位置单独处理
          **/
         $users_base_infos = UserBaseInfo::where('user_id', '!=', $user1->id)
+            ->where('name', '!=', ' ')
             ->whereNotExists(function ($query) use ($user1) {
                 $query->select(DB::raw(1))
                     ->from('user_await_match_infos')

@@ -12,6 +12,7 @@ use App\Models\UserSignInfo;
 use App\Transformers\UserSignDetailInfoTransformer;
 use App\Transformers\UserSignInfoTransformer;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SignDetailInfosController extends Controller
 {
@@ -189,13 +190,16 @@ class SignDetailInfosController extends Controller
         }
 
         $userBaseInfo = $this->user()->baseInfo()->get()->first();
+        Log::notice($userBaseInfo);
         $json_array = [
             'user_id' => $sign_detail_infos->user_id,
             'sign_rank' => $sign_detail_infos->sign_rank,
             'sign_major_rank' => $sign_detail_infos->sign_major_rank,
             'sign_timestamp' =>$sign_detail_infos->sign_timestamp,
         ];
-        $userBaseInfo && $json_array['user_major'] = $userBaseInfo->school_field;
+        if (!empty($userBaseInfo->school_field)){
+            $json_array['user_major'] = $userBaseInfo->school_field;
+        }
         return $this->response->array($json_array);
     }
 
