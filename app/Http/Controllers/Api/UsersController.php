@@ -391,7 +391,7 @@ class UsersController extends Controller
                         ->first();
                     if (!empty($user2_id_exist)) {
                     $array = [
-                        'message' => '此用户已有邀请对象',
+                        'message' => '你已邀请其他用户',
                         'user2_id' => $user2_id_exist->user2_id,
                     ];
                     return $this->response->array($array)->setStatusCode(403);
