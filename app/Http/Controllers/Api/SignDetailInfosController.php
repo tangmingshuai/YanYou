@@ -22,7 +22,7 @@ class SignDetailInfosController extends Controller
         $now_time = date("Y-m-d H:i:s", time());
 //        $now_time = Carbon::now();//存在小bug，会在秒后带小数点，偶尔时间也全错，先不用这个了
         $today_time = Carbon::today();
-        $begin_time = Carbon::today()->addHours(6);//五点开始打卡
+        $begin_time = Carbon::today()->addHours(5);//五点开始打卡
         $end_time = Carbon::today()->addHours(20)->addMinutes(30);//八点结束打卡
 //        dd(array(
 //            'now_val' => $now_time,
