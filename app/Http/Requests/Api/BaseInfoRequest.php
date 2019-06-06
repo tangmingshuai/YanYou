@@ -51,8 +51,19 @@ class BaseInfoRequest extends FormRequest
     public function messages()
     {
         return [
-
-                ];
+            'phone.phone' => '手机号填写有误',
+            'phone.numeric' => '手机号填写有误',
+            'name.string'  => '信息填写不完整',
+            'sex.string'  => '信息填写不完整',
+            'hometown.string'  => '信息填写不完整',
+            'area.string'  => '信息填写不完整',
+            'school_place.string'  => '信息填写不完整',
+            'school_name.string'  => '信息填写不完整',
+            'school_field.string'  => '信息填写不完整',
+            'school_type.string'  => '信息填写不完整',
+            'study_style.string'  => '信息填写不完整',
+            'good_subject.string'  => '信息填写不完整',
+        ];
     }
     protected function failedValidation(Validator $validator)
     {

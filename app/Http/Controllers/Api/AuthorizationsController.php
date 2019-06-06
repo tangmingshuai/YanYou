@@ -97,7 +97,7 @@ class AuthorizationsController extends Controller
 
     public function warmTime()
     {
-        return $this->response->array(['warm_time' => "2019-6-5 5:00:00"])->setStatusCode(201);
+        return $this->response->array(['warm_time' => "2019-06-05 05:00:00"])->setStatusCode(201);
     }
 
     protected function respondWithToken($token)

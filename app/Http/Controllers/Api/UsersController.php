@@ -218,6 +218,9 @@ class UsersController extends Controller
         //计算A和B之间的匹配度的调和平均值，即相似度
         try {
             foreach ($match_user1_res as $key => $value) {
+                if (empty($match_other_res[$key])){
+                    continue;
+                }
                 $match_res_tiaohe[$key] = round(2 * $value * $match_other_res[$key] / ($value + $match_other_res[$key]), 2);
             }
         } catch (\ErrorException $errorException) {
@@ -382,10 +385,11 @@ class UsersController extends Controller
             //此处暂留一个接口安全隐患，如果用户直接请求接口，仍能对黑名单中用户发送邀请，暂通过其他接口保护措施规避，若有问题需要补全
             case 'GET':
             case 'POST':
-                if (!empty($user2_id_exist = UserAwaitMatchInfo::where('user1_id', $user1_id)
-                    ->where('state', null)
-                    ->get()
-                    ->first())) {
+                    $user2_id_exist = UserAwaitMatchInfo::where('user1_id', $user1_id)
+                        ->where('state', null)
+                        ->get()
+                        ->first();
+                    if (!empty($user2_id_exist)) {
                     $array = [
                         'message' => '此用户已有邀请对象',
                         'user2_id' => $user2_id_exist->user2_id,
