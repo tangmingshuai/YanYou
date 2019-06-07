@@ -52,7 +52,10 @@ class BaseInfoRequest extends FormRequest
     {
         return [
             'phone.phone' => '手机号填写有误',
+<<<<<<< HEAD
             'phone.regex' => '手机号填写有误',
+=======
+>>>>>>> d909f95f2273f3a2e98f070d69c65a2fcd3bf3cb
             'phone.numeric' => '手机号填写有误',
             'name.string'  => '信息填写不完整',
             'sex.string'  => '信息填写不完整',

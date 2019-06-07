@@ -7,7 +7,6 @@ use App\Models\UserTargetInfo;
 use App\Transformers\UserTargetInfoTransformer;
 use App\Http\Controllers\Controller;
 use Dingo\Api\Routing\Helpers;
-use Illuminate\Support\Facades\Log;
 
 
 class TargetInfosController extends Controller
