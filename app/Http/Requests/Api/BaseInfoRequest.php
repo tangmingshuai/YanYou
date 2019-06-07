@@ -29,7 +29,7 @@ class BaseInfoRequest extends FormRequest
             case 'POST':
                 return [
                     'name' => 'string',
-                    'phone' => 'numeric|unique:user_base_infos,phone',
+                    'phone' => 'numeric|unique:user_base_infos,phone|regex:/^1[345789][0-9]{9}$/',
                     'sex' => 'string|in:女,男',
                     'hometown' => 'string',
                     'area' => 'string|in:北区,南区',
@@ -52,6 +52,7 @@ class BaseInfoRequest extends FormRequest
     {
         return [
             'phone.phone' => '手机号填写有误',
+            'phone.regex' => '手机号填写有误',
             'phone.numeric' => '手机号填写有误',
             'name.string'  => '信息填写不完整',
             'sex.string'  => '信息填写不完整',

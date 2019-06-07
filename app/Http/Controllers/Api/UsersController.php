@@ -184,6 +184,22 @@ class UsersController extends Controller
             return $this->response->array(['message'=>$errorException->getMessage()])->setStatusCode(400);
         }
 
+        // 过滤已有研友的用户信息
+        $alreadyMatchUsers = array_merge(DB::table('user_match_infos')->select('user1_id')->get()->toArray(), DB::table('user_match_infos')->select('user2_id')->get()->toArray());
+
+        foreach ($alreadyMatchUsers as $alreadyMatchUser)
+        {
+            !empty($alreadyMatchUser->user1_id) && $alreadyMatchUserIds[] = $alreadyMatchUser->user1_id;
+            !empty($alreadyMatchUser->user2_id) && $alreadyMatchUserIds[] = $alreadyMatchUser->user2_id;
+        }
+
+        $base_info_array['info'] = array_filter($base_info_array['info'], function($users_base_info) use ($alreadyMatchUserIds){
+            return !in_array($users_base_info['user_id'], $alreadyMatchUserIds);
+        });
+
+        $target_info_array['info'] = array_filter($target_info_array['info'], function($users_target_info) use ($alreadyMatchUserIds){
+            return !in_array($users_target_info['user_id'], $alreadyMatchUserIds);
+        });
 
 
         $base_info_1 = $base_info_array['info_1']; //当前用户基本信息，一维数组
@@ -196,6 +212,9 @@ class UsersController extends Controller
         $match_other_res = array(); //记录user1基本信息与其他用户目标信息的匹配结果的数组
 
         for ($i = 0; $i < count($base_info); $i++) {
+            if (!isset($base_info[$i])){
+                continue;
+            }
             $user2_id = $base_info[$i]['user_id'];
             $match_user1_res[$user2_id] = 0;
             foreach ($target_info_1 as $key => $value) {
@@ -206,6 +225,9 @@ class UsersController extends Controller
         }
 
         for ($i = 0; $i < count($target_info); $i++) {
+            if (!isset($target_info[$i])){
+                continue;
+            }
             $user2_id = $target_info[$i]['user_id'];
             $match_other_res[$user2_id] = 0;
             foreach ($target_info[$i] as $key => $value) {
@@ -434,9 +456,10 @@ class UsersController extends Controller
 //        $user1_base_infos = new Collection();
         foreach ($userAwaitMatchInfos as $userAwaitMatchInfo) {
             $user2 = User::find($userAwaitMatchInfo->user2_id);
-//            $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
-            $user2_base_infos[$userAwaitMatchInfo->user2_id] = array_merge($user2->baseinfo()->get()->first()->toArray(), $user2->weixininfo()->get()->first()->toArray());
-
+            if ($user2){
+                //            $user1_base_infos->push(User::find($userAwaitMatchInfo->user1_id)->baseInfo()->get()->first());
+                $user2_base_infos[$userAwaitMatchInfo->user2_id] = array_merge($user2->baseinfo()->get()->first()->toArray(), $user2->weixininfo()->get()->first()->toArray());
+            }
         }
 //        if (empty($user1_base_infos->first())) {
         if (empty($user2_base_infos)) {
